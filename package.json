@@ -1,0 +1,39 @@
+{
+  "private": true,
+  "name": "event-manager",
+  "scripts": {
+    "build": "turbo run build",
+    "serve": "turbo run serve",
+    "dev": "turbo run dev --parallel",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "postinstall": "husky install"
+  },
+  "devDependencies": {
+    "@turbo/gen": "^1.9.7",
+    "@types/node": "^20.4.1",
+    "eslint-config-shared": "*",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.3",
+    "prettier": "^3.0.0",
+    "shared-types": "*",
+    "turbo": "latest",
+    "typescript": "^5.1.6"
+  },
+  "lint-staged": {
+    "**/*.{ts,vue}": [
+      "npm run type-check"
+    ],
+    "**/*.{js,ts,vue}": [
+      "npm run lint"
+    ]
+  },
+  "packageManager": "yarn@1.22.19",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
