@@ -18,13 +18,14 @@ export const createEvent = async (req: Request, res: Response) => {
   } = req.body;
 
   try {
-    // Создаем новое мероприятие
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+
     const event = await Event.create({
       title,
       description,
       organiserId,
       maxCapacity,
-      participantsId: participantsId || [],
+      participantsId: Array.isArray(participantsId) ? participantsId : [],
       dateStart,
       dateEnd,
       placeId,
@@ -32,7 +33,8 @@ export const createEvent = async (req: Request, res: Response) => {
       rating,
       price,
       city,
-      dateCreate: new Date() // Записываем текущую дату как дату создания
+      dateCreate: new Date(),
+      imageUrl
     });
 
     res.status(201).json({ message: 'Event created successfully', event });

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { User } from '@/models/user.model';
+import bcrypt from 'bcryptjs';
 
 export const confirmEmail = async (req: Request, res: Response) => {
   const { email, confirmationCode } = req.body;
@@ -20,8 +21,23 @@ export const confirmEmail = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid confirmation code' });
     }
 
-    // Код верный, обновляем статус пользователя (например, активируем его)
-    user.confirmationCode = null; // Убираем код подтверждения после подтверждения
+    // Проверка количества попыток
+    if (user.failedAttempts >= 5) {
+      return res.status(429).json({ message: 'Too many failed attempts. Try again later.' });
+    }
+
+    // Проверка кода с bcrypt
+    const isCodeValid = await bcrypt.compare(confirmationCode, user.confirmationCode ?? '');
+    if (!isCodeValid) {
+      user.failedAttempts += 1;
+      await user.save();
+      return res.status(400).json({ message: 'Invalid confirmation code' });
+    }
+
+    user.confirmationCode = null;
+    user.confirmationCodeExpires = null;
+    user.failedAttempts = 0;
+    user.isConfirmed = true;
     await user.save();
 
     res.status(200).json({ message: 'Email confirmed successfully' });

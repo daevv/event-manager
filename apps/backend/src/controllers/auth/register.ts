@@ -22,13 +22,16 @@ export const register = async (req: Request, res: Response) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const confirmationCode = generateConfirmationCode();
+    const hashedCode = await bcrypt.hash(confirmationCode, 10); // Хешируем код
+
     const newUser = await User.create({
       email,
       password: hashedPassword,
-      confirmationCode,
-      confirmationCodeExpires: new Date(Date.now() + 300000) // 5 минут
+      confirmationCode: hashedCode, // Сохраняем хеш
+      confirmationCodeExpires: new Date(Date.now() + 300000), // 5 минут
+      isConfirmed: false,
+      failedAttempts: 0
     });
 
     await sendConfirmationEmail(email, confirmationCode);

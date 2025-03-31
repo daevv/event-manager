@@ -5,12 +5,15 @@ import { User } from '@/models/user.model';
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  console.log(email, password);
 
   try {
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    if (!user.isConfirmed) {
+      return res.status(403).json({ message: 'Please confirm your email first' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);

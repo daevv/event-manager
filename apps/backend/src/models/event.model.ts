@@ -17,6 +17,7 @@ interface EventAttributes {
   price?: number;
   city: string;
   dateCreate: Date;
+  imageUrl?: string;
 }
 
 // Указываем, какие поля необязательны при создании новой записи
@@ -40,6 +41,7 @@ class Event extends Model<EventAttributes, EventCreationAttributes> implements E
   public price?: number;
   public city!: string;
   public dateCreate!: Date;
+  public imageUrl?: string;
 
   // Тут можно добавить методы для модели, если нужно
 }
@@ -103,7 +105,8 @@ Event.init(
     dateCreate: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW
-    }
+    },
+    imageUrl: { type: DataTypes.STRING, allowNull: true }
   },
   {
     sequelize, // Указание экземпляра Sequelize
