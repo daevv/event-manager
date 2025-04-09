@@ -1,47 +1,21 @@
+<!-- src/widgets/EventHeader.vue -->
 <template>
-  <header class="flex flex-col px-20 pt-2.5 w-full bg-slate-800 max-md:px-5 max-md:max-w-full">
-    <nav class="flex z-10 flex-col self-center mt-0 w-full max-w-[1720px] max-md:max-w-full">
-      <div
-        class="flex flex-wrap gap-5 justify-between items-start w-full max-w-[1456px] max-md:max-w-full"
-      >
-        <h1 class="px-16 pt-4 pb-2.5 text-5xl text-yellow-300 whitespace-nowrap max-md:text-4xl">
-          Eventify
-        </h1>
+  <header class="header">
+    <div class="header-container">
+      <!-- Название сайта с переходом на главную -->
+      <router-link :to="{ name: RouteNames.HOME }" class="site-title"> DaevPulse </router-link>
 
-        <div
-          class="flex flex-wrap gap-10 mt-2 text-2xl font-medium text-center text-white max-md:max-w-full"
-        >
-          <nav
-            class="flex flex-wrap gap-7 items-start whitespace-nowrap min-h-[60px] max-md:max-w-full"
-          >
-            <a class="gap-2.5 py-2.5 pr-2.5 pl-3" href="#">Home</a>
-            <a class="gap-2.5 py-2.5 pr-2.5 pl-3" href="#">Events</a>
-            <a class="gap-2.5 py-2.5 pr-2.5 pl-3" href="#">About</a>
-            <a class="gap-2.5 py-2.5 pr-2.5 pl-3" href="#">Contact</a>
-          </nav>
+      <!-- Навигация -->
+      <nav class="nav">
+        <router-link :to="{ name: RouteNames.HOME }" class="nav-link">Главная</router-link>
+        <router-link :to="{ name: RouteNames.AUTH }" class="nav-link">Войти</router-link>
+        <router-link :to="{ name: RouteNames.PROFILE }" class="nav-link">Профиль</router-link>
+      </nav>
 
-          <button class="gap-2.5 self-start px-5 py-2.5">Create Event</button>
-        </div>
-      </div>
-
-      <div
-        class="flex overflow-hidden z-10 flex-col items-end self-end mt-0 max-w-full h-[67px] w-[260px]"
-      >
-        <div
-          class="flex flex-col px-px pt-7 text-sm font-semibold text-center text-white whitespace-nowrap w-[68px]"
-        >
-          <img
-            class="object-contain self-end w-2.5 aspect-[1.43] fill-white"
-            src="https://cdn.builder.io/api/v1/image/assets/3d0238404b5a4135b36b371d99801475/158043203e041a0d7101783f7cb825702ed2c67392f11ed67d5735ce93666d90?placeholderIfAbsent=true"
-          />
-          <button class="z-10 self-start mt-3">Profile</button>
-        </div>
-
-        <div class="overflow-hidden pb-0.5 mt-2 w-full bg-white rounded-xl shadow-sm max-w-[260px]">
-          <div class="flex gap-2.5 py-5 w-full min-h-0 bg-white"></div>
-        </div>
-      </div>
-    </nav>
+      <router-link :to="{ name: RouteNames.EVENT_CREATE }" class="create-event-button">
+        Создать событие
+      </router-link>
+    </div>
   </header>
 </template>
 
@@ -52,3 +26,110 @@ export default defineComponent({
   name: 'EventHeader'
 });
 </script>
+
+<script lang="ts" setup>
+import { RouteNames } from '@/router';
+</script>
+
+<style scoped>
+.header {
+  background: linear-gradient(90deg, #4a4a4a 0%, #2d2d2d 100%);
+  padding: 20px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.site-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffeb3b; /* Жёлтый цвет для контраста */
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.site-title:hover {
+  color: #fff;
+}
+
+.nav {
+  display: flex;
+  gap: 30px;
+}
+
+.nav-link {
+  font-size: 18px;
+  font-weight: 500;
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ffeb3b;
+}
+
+.create-event-button {
+  padding: 10px 20px;
+  background: #ff6f61; /* Яркий оранжевый для выделения */
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 6px;
+  transition:
+    background 0.3s ease,
+    transform 0.2s ease;
+}
+
+.create-event-button:hover {
+  background: #e65a50;
+  transform: scale(1.05); /* Лёгкое увеличение при наведении */
+}
+
+.create-event-button:active {
+  transform: scale(0.95); /* Эффект нажатия */
+}
+
+.nav-link.router-link-active {
+  color: #ffeb3b;
+  border-bottom: 2px solid #ffeb3b;
+  padding-bottom: 2px;
+}
+
+@media (max-width: 767px) {
+  .header-container {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .site-title {
+    font-size: 24px;
+  }
+
+  .nav {
+    gap: 20px;
+  }
+
+  .nav-link {
+    font-size: 16px;
+  }
+
+  .create-event-button {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+}
+</style>

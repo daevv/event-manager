@@ -19,10 +19,12 @@
     "@fortawesome/free-regular-svg-icons": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/vue-fontawesome": "^3.0.3",
-    "axios": "^1.4.0",
+    "@headlessui/vue": "^1.7.23",
+    "axios": "^1.8.1",
     "pinia": "^2.1.3",
     "vue": "^3.3.4",
     "vue-router": "^4.2.2",
+    "vue-toastification": "^2.0.0-rc.5",
     "vuedraggable": "^2.24.3"
   },
   "devDependencies": {
@@ -33,6 +35,7 @@
     "@types/jest": "^29.5.2",
     "@types/jsdom": "^21.1.1",
     "@types/node": "^18.16.17",
+    "@types/nodemailer": "^6.4.17",
     "@vitejs/plugin-vue": "^4.2.3",
     "@vue/eslint-config-prettier": "^7.1.0",
     "@vue/eslint-config-typescript": "^11.0.3",

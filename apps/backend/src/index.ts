@@ -1,38 +1,29 @@
-import 'dotenv/config';
 import express from 'express';
-import compression from 'compression';
+import { sequelize } from '@/config/db';
+import authRoutes from './routes/auth';
+import userRoutes from './routes/users';
+import eventRoutes from './routes/events';
+import blacklistRoutes from './routes/blacklists';
+import groupRoutes from './routes/groups';
+import commentRoutes from './routes/comments';
 import cors from 'cors';
 
-import authRoutes from '@/routes/auth';
-import eventRoutes from '@/routes/events';
-import commentRoutes from '@/routes/comments';
-import { sequelize } from '@/config/db';
-import bodyParser from 'body-parser';
-
-export const app = express();
+const app = express();
 
 app.use(cors());
+
+app.use(express.json());
 app.use('/uploads', express.static('uploads'));
-app.use(bodyParser.json());
+app.use('/auth', authRoutes);
+app.use('/users', userRoutes);
+app.use('/events', eventRoutes);
+app.use('/blacklists', blacklistRoutes);
+app.use('/groups', groupRoutes);
+app.use('/comments', commentRoutes);
 
-app.use(compression());
-
-app.use(express.static('public'));
-
-app.use('/api/auth', authRoutes);
-app.use('/api/events', eventRoutes);
-app.use('/api/comments', commentRoutes);
-
-const PORT = process.env.PORT ?? 3000;
-
-sequelize
-  .sync({ force: false })
-  .then(() => {
-    console.log('Database connected and synced');
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error('Database connection failed:', error);
-  });
+// Запуск сервера
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, async () => {
+  await sequelize.sync();
+  console.log(`Server running on port ${PORT}`);
+});

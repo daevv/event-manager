@@ -1,11 +1,10 @@
 @import 'base.scss';
-@import "tailwindcss";
 
 #app {
-  max-width: 1280px;
+  max-width: 1420px;
   margin: 0 auto;
   padding: 2rem;
-
+  height: 100%;
   font-weight: normal;
 }
 
@@ -17,4 +16,8 @@
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+a, a:hover, a:visited, a:active {
+  text-decoration: none;
 }
