@@ -1,0 +1,37 @@
+
+services:
+  app:
+    build: .
+    container_name: event-manager-app
+    ports:
+      - "3000:3000"  # Прокси порт из контейнера на хост
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/event_manager?schema=public
+    volumes:
+      - .:/app
+    networks:
+      - event-manager-network
+
+  db:
+    image: postgres:13
+    container_name: event-manager-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: my_database
+    ports:
+      - "5432:5432"
+    networks:
+      - event-manager-network
+    volumes:
+      - db-data:/var/lib/postgresql/data  # Сохраняем данные в volume
+
+networks:
+  event-manager-network:
+    driver: bridge
+
+volumes:
+  db-data:
+    driver: local
