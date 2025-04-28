@@ -2,8 +2,8 @@
   <section class="auth-section">
     <div class="auth-container">
       <form class="auth-form" @submit.prevent="handleSubmit">
-        <h2 class="auth-form__title">Create Account ✌️</h2>
-        <p class="auth-form__subtitle">Join us and start your journey</p>
+        <h2 class="auth-form__title">Зарегистрироваться ✌️</h2>
+        <p class="auth-form__subtitle">Присоединяйся, тебя уже заждались</p>
 
         <div class="input-wrapper">
           <FormInput
@@ -78,7 +78,7 @@ import { ref } from 'vue';
 import FormInput from '@/components/form/FormInput.vue';
 import FormButton from '@/components/form/FormButton.vue';
 import axios from 'axios';
-import axiosInstance from '@/axiosInstance';
+import axiosInstance from '@/shared/axiosInstance';
 
 const emit = defineEmits<{
   (evt: 'on-sign-in', withConfirmEmailModal?: boolean): void;

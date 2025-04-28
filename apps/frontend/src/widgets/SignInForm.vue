@@ -2,14 +2,14 @@
   <section class="auth-section">
     <div class="auth-container">
       <form class="auth-form" @submit.prevent="handleSubmit">
-        <h2 class="auth-form__title">Welcome Back 👋</h2>
-        <p class="auth-form__subtitle">We are glad to see you and bla-bla bla-bla</p>
+        <h2 class="auth-form__title">Добро пожаловать 👋</h2>
+        <p class="auth-form__subtitle">Мы рады, что ты снова с нами</p>
 
         <div class="input-wrapper">
           <FormInput
             v-model="formData.email"
             class="auth-form__email auth-form__input"
-            label="Email"
+            label="Почта"
             placeholder="Email@example.com"
             type="email"
           />
@@ -21,20 +21,20 @@
             v-model="formData.password"
             :showInputToggle="true"
             class="auth-form__password auth-form__input"
-            label="Password"
-            placeholder="At least 8 symbols"
+            label="Пароль"
+            placeholder="Минимум 8 символов"
             type="password"
           />
           <p v-if="errors.password" class="error-message">{{ errors.password }}</p>
         </div>
 
-        <FormButton full-width> Sign in </FormButton>
+        <FormButton full-width> Войти </FormButton>
       </form>
 
       <footer class="auth-footer">
-        <p>Don't have an account?</p>
+        <p>Нет аккаунта?</p>
         <FormButton full-width variant="secondary" @click="emit('on-sign-up')">
-          Sign up
+          Зарегистрироваться
         </FormButton>
       </footer>
     </div>
@@ -45,9 +45,10 @@
 import { ref } from 'vue';
 import FormInput from '@/components/form/FormInput.vue';
 import FormButton from '@/components/form/FormButton.vue';
-import router, { RouteNames } from '@/router';
+import router, { RouteNames } from '@/shared/router';
 import axios from 'axios';
-import axiosInstance from '@/axiosInstance';
+import axiosInstance from '@/shared/axiosInstance';
+import { useUserStore } from '@/shared/stores/userStore';
 
 const emit = defineEmits<{
   (evt: 'on-sign-up'): void;
@@ -63,6 +64,8 @@ const errors = ref({
   email: '',
   password: ''
 });
+
+const userStore = useUserStore();
 
 // Email validation: checks if the email is in a valid format
 const validateEmail = (email: string): boolean => {
@@ -132,15 +135,17 @@ const handleSubmit = async () => {
       const response = await axiosInstance.post('auth/login', payload);
 
       // Successful login: save token and redirect
-      const { token } = response.data;
+      const { token, userWithoutSensitiveData: user } = response.data;
+      userStore.initUser(user);
       localStorage.setItem('authToken', token);
+      localStorage.setItem('userId', user.id);
       router.push({ name: RouteNames.HOME });
     } catch (error) {
       const errorMessage =
         axios.isAxiosError(error) && error.response?.data?.message
           ? error.response.data.message
           : 'An error occurred during login';
-
+      console.log(error);
       errors.value.email = errorMessage;
     }
   }

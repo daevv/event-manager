@@ -8,6 +8,7 @@ class User extends Model {
   public firstName!: string;
   public secondName!: string;
   public emailVerified!: boolean;
+  public interests?: string[];
 }
 
 User.init(
@@ -38,6 +39,11 @@ User.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false // По умолчанию email не подтвержден
+    },
+    interests: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false,
+      defaultValue: []
     }
   },
   {

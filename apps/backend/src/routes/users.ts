@@ -10,11 +10,11 @@ const router = Router();
 //   res.json(users);
 // });
 //
-// router.get('/:id', authenticate, async (req, res) => {
-//   const user = await User.findByPk(req.params.id, { attributes: { exclude: ['password_hash'] } });
-//   if (!user) return res.status(404).json({ message: 'Пользователь не найден' });
-//   res.json(user);
-// });
+router.get('/:id', async (req, res) => {
+  const user = await User.findByPk(req.params.id, { attributes: { exclude: ['password_hash'] } });
+  if (!user) return res.status(404).json({ message: 'Пользователь не найден' });
+  res.json(user);
+});
 
 router.put('/:id', authenticate, async (req, res) => {
   if (req.user!.id !== req.params.id) {
@@ -26,6 +26,6 @@ router.put('/:id', authenticate, async (req, res) => {
 });
 router.get('/administeredEvents', authenticate, userController.getAdministeredEvents);
 router.get('/registeredEvents', authenticate, userController.getRegisteredEvents);
-router.get('/organizedEvents', authenticate, userController.getOrganizedEvents);
+router.get('/organizedEvents/:id', userController.getOrganizedEvents);
 
 export default router;

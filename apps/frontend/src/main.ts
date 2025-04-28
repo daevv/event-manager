@@ -3,8 +3,8 @@ import './assets/styles/main.scss';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
-import App from './App.vue';
-import router from './router';
+import App from '@/app/App.vue';
+import router from '@/shared/router';
 
 import { config, library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';

@@ -46,7 +46,7 @@ function handleSwitch(withConfirmEmailModal = false): void {
   justify-content: space-between;
 
   .auth-page__bg {
-    background: url('../assets/images/auth_bg.png') no-repeat center;
+    background: url('../assets/images/auth_bg.jpeg') no-repeat center;
     background-size: cover;
     height: 100%;
     border-radius: 24px;

@@ -29,7 +29,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { RouteNames } from '@/router';
+import { RouteNames } from '@/shared/router';
 
 // Предполагаем, что текущий пользователь хранится в глобальном состоянии (например, Pinia или Vuex)
 // Для примера используем заглушку

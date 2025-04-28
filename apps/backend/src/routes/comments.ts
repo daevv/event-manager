@@ -8,6 +8,6 @@ const router = Router();
 router.post('/', authenticate, commentController.createComment);
 router.put('/:id', authenticate, commentController.updateComment);
 router.delete('/:id', authenticate, commentController.deleteComment);
-router.get('/event/:event_id', commentController.getCommentsByEvent); // Открыт для всех
+router.get('/:event_id', commentController.getCommentsByEvent); // Открыт для всех
 
 export default router;

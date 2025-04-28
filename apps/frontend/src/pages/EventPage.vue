@@ -1,11 +1,10 @@
 <template>
   <main class="event-page">
-    <EventHeader />
     <section v-if="event" class="event-header">
       <div class="event-image-container">
         <img :src="imgSrc" alt="Event image" class="event-image" @error="onImageError" />
         <div class="event-meta">
-          <span class="event-category">{{ event.category }}</span>
+          <span v-for="category in event.categories" class="event-category">{{ category }}</span>
           <div class="event-location">
             <img
               alt="Location icon"
@@ -25,13 +24,15 @@
           <div class="event-price">
             <span>{{ formatPrice(event.price) }}</span>
           </div>
-          <button class="buy-ticket-button">Купить билет</button>
           <div class="event-actions">
-            <button class="action-button">
-              <span class="heart-icon">❤️</span> {{ event.participantsCount }}
+            <button class="buy-ticket-button" @click="handleRegistration">
+              {{ registerButtonText }}
             </button>
-            <button class="action-button">
-              <span class="share-icon">↪️</span>
+            <button v-if="canUpdate" class="buy-ticket-button" @click="handleUpdate">
+              {{ 'Редактировать' }}
+            </button>
+            <button class="action-button" @click="handleFavourite">
+              <span class="heart-icon">❤️</span>
             </button>
           </div>
         </div>
@@ -41,17 +42,29 @@
     <section v-if="event" class="event-details">
       <div class="event-info">
         <div class="event-tags">
-          <span class="tag">Возраст 18+</span>
-          <span class="tag">{{ event.category }}</span>
+          <span v-for="category in event.categories" class="tag">{{ category }}</span>
           <span class="tag">{{ event.isLocal ? 'Локальное' : 'Онлайн' }}</span>
         </div>
         <h2 class="section-title">Про событие</h2>
         <p class="event-description">{{ event.description }}</p>
       </div>
       <div class="event-contacts">
-        <h2 class="section-title">Контакты</h2>
-        <p class="contact-info">Телефон: <a href="tel:+79991234567">+7 (999) 123-45-67</a></p>
+        <h2 class="section-title">Организатор</h2>
+        <div class="organizer-info" @click="handleOrganizerClick">
+          <img alt="org-icon" class="user-icon" src="../assets/images/organizer_icon.jpeg" />
+          <div class="organizer-info__content">
+            <span class="organizer-name">{{ organizerData.name }}</span>
+            <span class="organizer-email">{{ organizerData.email }}</span>
+          </div>
+        </div>
       </div>
+    </section>
+
+    <section v-if="event" class="event-comments">
+      <CommentList :event-id="eventId" />
+    </section>
+    <section v-if="event" class="event-participants">
+      <ParticipantsList :event-id="eventId" />
     </section>
 
     <div v-if="eventStore.loading">Загрузка...</div>
@@ -68,18 +81,31 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { useEventStore } from '@/stores/eventStore';
-import EventHeader from '@/widgets/EventHeader.vue';
+import { useEventStore } from '@/shared/stores/eventStore';
 import { API_BASE_URL } from '@/config';
+import { toId } from '@/shared/utilities';
+import { type User, useUserStore } from '@/shared/stores/userStore';
+import router, { RouteNames } from '@/shared/router';
+import CommentList from '@/features/CommentList.vue';
+import ParticipantsList from '@/features/ParticipantsList.vue';
 
 // Инициализируем стор и маршрут
 const eventStore = useEventStore();
+const userStore = useUserStore();
 const route = useRoute();
 
 // Получаем ID события из параметров маршрута
 const eventId = computed(() => route.params.id as string);
+const isUserRegistered = computed<boolean>(() => {
+  const userRegisteredEvents = eventStore.registeredEvents.map(toId);
+  return userRegisteredEvents.includes(eventId.value);
+});
+
+const registerButtonText = computed<string>(() => {
+  return isUserRegistered.value ? 'Отменить запись' : 'Записаться на событие';
+});
 
 // Получаем событие из стора
 const event = computed(() => {
@@ -89,6 +115,14 @@ const event = computed(() => {
   }
   return foundEvent || null;
 });
+
+const organizer = ref<User | null>(null);
+const organizerData = computed(() => ({
+  name: organizer.value?.firstName + ' ' + organizer.value?.secondName ?? 'John Dow',
+  email: organizer.value?.email ?? 'testMail@mail.ru'
+}));
+
+const canUpdate = computed<boolean>(() => userStore.user.id === event.value?.organizerId);
 
 // Получаем URL изображения
 const imgSrc = computed(() =>
@@ -106,12 +140,12 @@ function formatDateTime(dateTime: Date | string): string {
 }
 
 function formatPrice(price: number | null): string {
-  return price !== null ? `${price} ₽` : 'Бесплатно';
+  return price !== null && price > 0 ? `${price} ₽` : 'Бесплатно';
 }
 
 function getPlaceName(): string {
-  if (!event.value?.placeId) return 'Online or TBD';
-  return eventStore.placesDict[event.value.placeId]?.title || 'Unknown Place';
+  if (!event.value?.location) return 'Online or TBD';
+  return event.value?.location.address || 'Unknown Place';
 }
 
 function onImageError(event: Event) {
@@ -126,8 +160,27 @@ const fetchEvent = async () => {
   // }
 };
 
-onMounted(() => {
-  fetchEvent();
+async function handleRegistration(): Promise<void> {
+  isUserRegistered.value
+    ? await eventStore.unregister(eventId.value)
+    : await eventStore.register(eventId.value);
+}
+
+async function handleUpdate(): Promise<void> {
+  await router.push({ name: RouteNames.EVENT_EDIT, params: { id: eventId.value } });
+}
+
+async function handleFavourite(): Promise<void> {
+  eventStore.toggleFavourite(eventId.value);
+}
+
+async function handleOrganizerClick() {
+  await router.push({ name: RouteNames.ORGANIZER_PAGE, params: { id: organizer.value?.id } });
+}
+
+onMounted(async () => {
+  await fetchEvent();
+  organizer.value = await userStore.fetchUser(event.value?.organizerId);
 });
 </script>
 
@@ -217,9 +270,6 @@ onMounted(() => {
 }
 
 .event-actions {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
   display: flex;
   gap: 12px;
 }
@@ -281,22 +331,29 @@ onMounted(() => {
   line-height: 1.6;
 }
 
-.event-contacts {
-  flex: 1;
-}
+.organizer-info {
+  display: flex;
+  gap: 2rem;
+  padding: 12px;
+  border-radius: 24px;
+  border: 1px solid #ff6f61;
+  transition: background-color 0.2s linear;
 
-.contact-info {
-  font-size: 16px;
-  color: #666;
-}
+  .user-icon {
+    border-radius: 50%;
+    height: 55px;
+    width: 55px;
+  }
 
-.contact-info a {
-  color: #ff6f61;
-  text-decoration: none;
-}
+  .organizer-info__content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
 
-.contact-info a:hover {
-  text-decoration: underline;
+  &:hover {
+    background: rgba(255, 111, 97, 0.1);
+  }
 }
 
 /* Стили остаются без изменений */
@@ -336,11 +393,6 @@ onMounted(() => {
     font-size: 14px;
   }
 
-  .event-actions {
-    bottom: 10px;
-    right: 10px;
-  }
-
   .action-button {
     padding: 6px 10px;
     font-size: 12px;
@@ -356,8 +408,7 @@ onMounted(() => {
     font-size: 20px;
   }
 
-  .event-description,
-  .contact-info {
+  .event-description {
     font-size: 14px;
   }
 }

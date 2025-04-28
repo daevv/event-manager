@@ -9,15 +9,6 @@ import nodemailer from 'nodemailer';
 //   }
 // });
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.ethereal.email',
-  port: 587,
-  auth: {
-    user: 'erika.gleason@ethereal.email',
-    pass: 'cekq25YPq2aBJfp1pg'
-  }
-});
-
 // export const sendVerificationEmail = async (email: string, token: string) => {
 //   const verificationUrl = `${process.env.APP_URL}/auth/verify?token=${token}`;
 //   await transporter.sendMail({
@@ -26,6 +17,15 @@ const transporter = nodemailer.createTransport({
 //     html: `Перейдите по ссылке для подтверждения: <a href="${verificationUrl}">${verificationUrl}</a>`
 //   });
 // };
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.ethereal.email',
+  port: 587,
+  auth: {
+    user: 'erika.gleason@ethereal.email',
+    pass: 'cekq25YPq2aBJfp1pg'
+  }
+});
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   const info = await transporter.sendMail({

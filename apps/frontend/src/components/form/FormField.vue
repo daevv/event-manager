@@ -1,98 +1,192 @@
 <template>
-  <div class="form-field">
-    <div v-if="props.icon" class="icon-container">
-      <img v-if="typeof props.icon === 'string'" :src="props.icon" alt="icon" class="icon" />
-      <div v-else v-html="props.icon"></div>
+  <div :class="{ 'full-width': fullWidth }" class="form-field">
+    <label v-if="label" :for="id" class="field-label">
+      {{ label }}
+      <span v-if="required" class="required-asterisk">*</span>
+    </label>
+
+    <div class="field-input-container">
+      <input
+        v-if="type !== 'textarea' && type !== 'select'"
+        :id="id"
+        v-model="inputValue"
+        :min="min"
+        :placeholder="placeholder"
+        :required="required"
+        :step="step"
+        :type="type"
+        class="field-input"
+        @input="handleInput"
+      />
+
+      <textarea
+        v-else-if="type === 'textarea'"
+        :id="id"
+        v-model="inputValue"
+        :placeholder="placeholder"
+        :required="required"
+        class="field-input"
+        rows="4"
+        @input="handleInput"
+      ></textarea>
+
+      <select
+        v-else-if="type === 'select'"
+        :id="id"
+        v-model="inputValue"
+        class="field-input"
+        @change="handleInput"
+      >
+        <option disabled selected value="">{{ placeholder }}</option>
+        <option v-for="option in options" :key="option.value" :value="option.value">
+          {{ option.label }}
+          <span v-if="option.subLabel"> - {{ option.subLabel }}</span>
+        </option>
+      </select>
+
+      <div v-if="$slots.suffix" class="field-suffix">
+        <slot name="suffix"></slot>
+      </div>
     </div>
-    <input
-      :placeholder="props.placeholder"
-      :type="props.type"
-      :value="props.modelValue"
-      class="input-field"
-      @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-    />
+
+    <div v-if="error" class="field-error">
+      {{ error }}
+    </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-  name: 'FormField'
-});
-</script>
-
 <script lang="ts" setup>
-const props = defineProps<{
-  modelValue: string;
-  placeholder?: string;
-  type?: string;
-  icon?: string | { __html: string };
-}>();
+import { computed } from 'vue';
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void;
-}>();
+const props = defineProps({
+  modelValue: {
+    type: [String, Number],
+    default: ''
+  },
+  id: {
+    type: String,
+    default: ''
+  },
+  label: {
+    type: String,
+    default: ''
+  },
+  type: {
+    type: String,
+    default: 'text'
+  },
+  placeholder: {
+    type: String,
+    default: ''
+  },
+  required: {
+    type: Boolean,
+    default: false
+  },
+  min: {
+    type: [String, Number],
+    default: undefined
+  },
+  step: {
+    type: [String, Number],
+    default: undefined
+  },
+  error: {
+    type: String,
+    default: ''
+  },
+  fullWidth: {
+    type: Boolean,
+    default: false
+  },
+  options: {
+    type: Array as () => Array<{ value: string | number; label: string; subLabel?: string }>,
+    default: () => []
+  }
+});
+
+const emit = defineEmits(['update:modelValue']);
+
+const inputValue = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value)
+});
+
+const handleInput = () => {
+  // Additional validation or formatting can be added here
+};
 </script>
 
 <style scoped>
 .form-field {
+  margin-bottom: 1.5rem;
+}
+
+.form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.required-asterisk {
+  color: var(--color-danger);
+  margin-left: 0.25rem;
+}
+
+.field-input-container {
   position: relative;
-  width: 900px;
 }
 
-.icon-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 56px;
-  height: 56px;
-  background-color: #e4e4e7;
-  border-right: 1px solid rgba(156, 163, 175, 0.7);
-  border-radius: 50%;
-}
-
-.icon {
-  width: 30px;
-  height: 30px;
-}
-
-.input-field {
-  padding-left: 24px;
-  padding-right: 24px;
-  padding-top: 14px;
-  padding-bottom: 14px;
-  font-size: 20px;
-  border-radius: 8px;
-  border: 1px solid rgba(156, 163, 175, 0.7);
+.field-input {
   width: 100%;
-  font-size: 18px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: white;
 }
 
-.input-field:focus {
-  border-color: #9333ea;
+.field-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
 }
 
-@media (max-width: 640px) {
-  .form-field {
-    width: 100%;
-  }
+.field-input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
 
-  .input-field {
-    font-size: 16px;
-  }
+textarea.field-input {
+  min-height: 100px;
+  resize: vertical;
+}
 
-  .icon-container {
-    width: 40px;
-    height: 40px;
-  }
+select.field-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+}
 
-  .icon {
-    width: 24px;
-    height: 24px;
-  }
+.field-suffix {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+}
+
+.field-error {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-danger);
 }
 </style>

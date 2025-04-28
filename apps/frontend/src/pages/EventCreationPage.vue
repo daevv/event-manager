@@ -1,202 +1,231 @@
 <template>
-  <div class="container">
-    <EventHeader />
-
+  <div class="create-event-page">
     <main class="main-content">
-      <ProgressBar :activeStep="activeStep" :steps="progressSteps" />
-
-      <form class="event-form" @submit.prevent="handleSubmit">
-        <!-- Tab 1: Общая информация -->
-        <FormSection v-if="activeStep === 0" title="Event Details">
-          <FormGroup id="eventTitle" label="Event Title" required>
-            <FormField
-              v-model="formData.title"
-              placeholder="Enter the name of your event"
-              type="text"
-            />
-          </FormGroup>
-
-          <FormGroup id="eventDescription" label="Event Description" required>
-            <FormField
-              v-model="formData.description"
-              placeholder="Describe your event"
-              type="textarea"
-            />
-          </FormGroup>
-
-          <FormGroup id="eventCategory" label="Category" required>
-            <FormField v-model="formData.category" placeholder="Enter event category" type="text" />
-          </FormGroup>
-
-          <FormGroup id="eventPlaceId" label="Place ID (optional)">
-            <FormField v-model="formData.placeId" placeholder="Enter place ID" type="text" />
-          </FormGroup>
-        </FormSection>
-
-        <!-- Tab 2: Загрузка изображения -->
-        <FormSection v-if="activeStep === 1" title="Upload Event Image">
-          <FormGroup id="eventImage" label="Event Image" required>
-            <input class="input-file" type="file" @change="handleImageUpload" />
-            <img
-              v-if="formData.imageUrl"
-              :src="formData.imageUrl"
-              alt="Event Preview"
-              class="image-preview"
-            />
-          </FormGroup>
-        </FormSection>
-
-        <!-- Tab 3: Тип мероприятия -->
-        <FormSection v-if="activeStep === 2" title="Event Type & Tickets">
-          <FormGroup id="eventType" label="Event Type" required>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input v-model="formData.isLocal" :value="true" name="eventType" type="radio" />
-                Local
-              </label>
-              <label class="radio-item">
-                <input v-model="formData.isLocal" :value="false" name="eventType" type="radio" />
-                Online
-              </label>
-            </div>
-          </FormGroup>
-
-          <FormGroup v-if="formData.isLocal" id="groupId" label="Group ID (for local events)">
-            <FormField v-model="formData.groupId" placeholder="Enter group ID" type="text" />
-          </FormGroup>
-
-          <FormGroup id="maxParticipantsCount" label="Max Participants" required>
-            <FormField
-              v-model="formData.maxParticipantsCount"
-              min="1"
-              placeholder="Enter max participants"
-              type="number"
-            />
-          </FormGroup>
-
-          <FormGroup id="price" label="Price" required>
-            <FormField
-              v-model="formData.price"
-              min="0"
-              placeholder="Enter price (0 for free)"
-              step="0.01"
-              type="number"
-            />
-          </FormGroup>
-
-          <FormGroup id="dateTime" label="Event Date & Time" required>
-            <FormField v-model="formData.dateTime" type="datetime-local" />
-          </FormGroup>
-        </FormSection>
-
-        <!-- Tab 4: Предпросмотр -->
-        <FormSection v-if="activeStep === 3" title="Event Preview">
-          <div class="preview-card">
-            <h2 class="preview-title">{{ formData.title }}</h2>
-            <img
-              v-if="formData.imageUrl"
-              :src="formData.imageUrl"
-              alt="Event Preview"
-              class="preview-image"
-            />
-            <p class="preview-text"><strong>Description:</strong> {{ formData.description }}</p>
-            <p class="preview-text"><strong>Category:</strong> {{ formData.category }}</p>
-            <p class="preview-text"><strong>Place ID:</strong> {{ formData.placeId || 'N/A' }}</p>
-            <p class="preview-text">
-              <strong>Type:</strong> {{ formData.isLocal ? 'Local' : 'Online' }}
-            </p>
-            <p v-if="formData.isLocal" class="preview-text">
-              <strong>Group ID:</strong> {{ formData.groupId || 'N/A' }}
-            </p>
-            <p class="preview-text">
-              <strong>Max Participants:</strong> {{ formData.maxParticipantsCount }}
-            </p>
-            <p class="preview-text"><strong>Price:</strong> ${{ formData.price }}</p>
-            <p class="preview-text"><strong>Date & Time:</strong> {{ formData.dateTime }}</p>
-          </div>
-        </FormSection>
-
-        <!-- Кнопки управления -->
-        <div class="button-group">
-          <button :disabled="activeStep === 0" class="button-back" type="button" @click="prevStep">
-            Back
-          </button>
-          <button class="button-next" type="button" @click="nextStep">
-            {{ activeStep === 3 ? 'Submit' : 'Next' }}
-          </button>
+      <div class="form-container">
+        <div class="form-header">
+          <h1 class="form-title">Создать новое мероприятие</h1>
+          <ProgressStepper :current-step="activeStep" :steps="steps" />
         </div>
-      </form>
-    </main>
 
-    <FooterSection />
+        <form class="event-form" @submit.prevent>
+          <!-- Step 1: Basic Information -->
+          <div v-if="activeStep === 0" class="form-step">
+            <div class="form-grid">
+              <FormField
+                v-model="formData.title"
+                class="full-width"
+                label="Название мероприятия"
+                placeholder="Введите название мероприятия"
+                required
+              />
+
+              <FormField
+                v-model="formData.description"
+                class="full-width"
+                label="Описание"
+                placeholder="Расскажите о событии, чтобы на него пришли больше людей"
+                required
+                type="textarea"
+              />
+
+              <TagInput
+                v-model="formData.categories"
+                class="full-width"
+                label="Категории"
+                placeholder="Добавьте категории (нажмите 'Enter' чтобы добавить)"
+              />
+
+              <div v-if="false" class="event-type-selector">
+                <RadioCard
+                  v-model="formData.eventType"
+                  description="Virtual event with remote participants"
+                  icon="video"
+                  label="Online Event"
+                  value="online"
+                />
+                <RadioCard
+                  v-model="formData.eventType"
+                  description="Physical event open to everyone"
+                  icon="location"
+                  label="Public Offline"
+                  value="public"
+                />
+                <RadioCard
+                  v-model="formData.eventType"
+                  description="Private event for specific group members"
+                  icon="group"
+                  label="Local Group Event"
+                  value="local"
+                />
+              </div>
+
+              <LocationPicker v-if="true" v-model="formData.location" class="full-width" />
+            </div>
+          </div>
+
+          <!-- Step 2: Event Image -->
+          <div v-if="activeStep === 1" class="form-step">
+            <ImageUploader v-model="formData.imageFile" label="Event Cover Image" required />
+          </div>
+
+          <!-- Step 3: Event Details -->
+          <div v-if="activeStep === 2" class="form-step">
+            <div class="form-grid">
+              <template v-if="formData.isLocal">
+                <FormField
+                  v-model="formData.groupId"
+                  :options="groupOptions"
+                  class="full-width"
+                  label="Select Group"
+                  placeholder="Choose a group (optional)"
+                  type="select"
+                />
+              </template>
+
+              <div class="date-time-grid">
+                <FormField
+                  v-model="formData.dateTime"
+                  label="Date & Time"
+                  required
+                  type="datetime-local"
+                />
+
+                <FormField
+                  v-model="formData.maxParticipantsCount"
+                  label="Max Participants"
+                  min="1"
+                  placeholder="Leave empty for unlimited"
+                  type="number"
+                />
+
+                <FormField
+                  v-model="formData.price"
+                  label="Price"
+                  min="0"
+                  placeholder="0 for free event"
+                  step="0.01"
+                  type="number"
+                  @input="formData.isFree = formData.price === 0"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Preview -->
+          <div v-if="activeStep === 3" class="form-step">
+            <EventPreviewCard :event="previewData" />
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="form-actions">
+            <button v-if="activeStep > 0" class="btn btn-outline" type="button" @click="prevStep">
+              Back
+            </button>
+
+            <button class="btn btn-primary" type="button" @click="nextStep">
+              {{ activeStep === steps.length - 1 ? 'Create Event' : 'Continue' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+/* eslint-disable no-case-declarations */
+import { computed, onMounted, ref } from 'vue';
 import { useToast } from 'vue-toastification';
-import EventHeader from '@/widgets/EventHeader.vue';
-import ProgressBar from '@/components/ProgressBar.vue';
-import FormSection from '@/components/form/FormSection.vue';
-import FormGroup from '@/components/form/FormGroup.vue';
-import FooterSection from '@/widgets/FooterSection.vue';
+import { useGroupStore } from '@/shared/stores/groupStore';
+import ProgressStepper from '@/components/ProgressStepper.vue';
 import FormField from '@/components/form/FormField.vue';
-import router, { RouteNames } from '@/router';
+import TagInput from '@/components/TagInput.vue';
+import ImageUploader from '@/components/ImageUploader.vue';
+import RadioCard from '@/components/form/RadioCard.vue';
+import EventPreviewCard from '@/components/EventPreviewCard.vue';
+import router, { RouteNames } from '@/shared/router';
+import LocationPicker from '@/features/LocationPicker.vue';
 
 const toast = useToast();
+const groupStore = useGroupStore();
 const activeStep = ref(0);
 
-const progressSteps = [
-  { title: 'Details', isCompleted: false },
-  { title: 'Image', isCompleted: false },
-  { title: 'Tickets', isCompleted: false },
-  { title: 'Preview', isCompleted: false }
+const steps = [
+  { title: 'Основная информация', icon: 'info' },
+  { title: 'Изображение события', icon: 'image' },
+  { title: 'Детали', icon: 'settings' },
+  { title: 'Предпросмотр', icon: 'preview' }
 ];
 
 const formData = ref({
   title: '',
   description: '',
-  category: '',
+  categories: [] as string[],
   dateTime: '',
   isLocal: false,
-  groupId: '' as string | null,
-  maxParticipantsCount: 0,
+  groupId: null as string | null,
+  maxParticipantsCount: null as number | null,
   price: 0,
-  placeId: '' as string | null,
   isFree: false,
-  image: null as File | null,
-  imageUrl: ''
+  imageFile: null as File | null,
+  location: null as {
+    lat: number;
+    lng: number;
+    address: string;
+  } | null
 });
 
-const resetForm = () => {
-  formData.value = {
-    title: '',
-    description: '',
-    category: '',
-    dateTime: '',
-    isLocal: false,
-    groupId: null,
-    maxParticipantsCount: 0,
-    price: 0,
-    placeId: null,
-    isFree: false,
-    image: null,
-    imageUrl: ''
-  };
-  activeStep.value = 0;
-  progressSteps.forEach((step) => (step.isCompleted = false));
+const previewData = computed(() => ({
+  ...formData.value,
+  imageUrl: formData.value.imageFile ? URL.createObjectURL(formData.value.imageFile) : null
+}));
+
+const groupOptions = computed(() => {
+  return groupStore.groups.map((group) => ({
+    value: group.id,
+    label: group.name,
+    subLabel: `${group.members.length} members`
+  }));
+});
+
+onMounted(async () => {
+  await groupStore.fetchGroups();
+});
+
+const validateStep = (step: number): boolean => {
+  switch (step) {
+    case 0:
+      const basicValid =
+        formData.value.title.trim() !== '' &&
+        formData.value.description.trim() !== '' &&
+        formData.value.categories.length > 0;
+
+      if (formData.value.isLocal && !formData.value.location) {
+        toast.error('Please select a location for local event');
+        return false;
+      }
+      return basicValid;
+    case 1:
+      return formData.value.imageFile !== null;
+    case 2:
+      const validDateTime = formData.value.dateTime !== '';
+      const validParticipants =
+        formData.value.maxParticipantsCount === null || formData.value.maxParticipantsCount > 0;
+      const validPrice = formData.value.price >= 0;
+
+      return validDateTime && validParticipants && validPrice;
+    default:
+      return true;
+  }
 };
 
 const nextStep = () => {
   if (validateStep(activeStep.value)) {
-    progressSteps[activeStep.value].isCompleted = true;
-    if (activeStep.value < 3) {
+    if (activeStep.value < steps.length - 1) {
       activeStep.value++;
     } else {
       handleSubmit();
     }
-  } else {
-    toast.error('Please fill in all required fields.');
   }
 };
 
@@ -206,60 +235,39 @@ const prevStep = () => {
   }
 };
 
-const validateStep = (step: number) => {
-  if (step === 0)
-    return formData.value.title && formData.value.description && formData.value.category;
-  if (step === 1) return formData.value.imageUrl;
-  if (step === 2) {
-    return (
-      (formData.value.isLocal ? formData.value.groupId : true) &&
-      formData.value.maxParticipantsCount > 0 &&
-      formData.value.price >= 0 &&
-      formData.value.dateTime
-    );
-  }
-  return true;
-};
-
-const handleImageUpload = (event: Event) => {
-  const file = (event.target as HTMLInputElement).files?.[0];
-  if (file) {
-    formData.value.image = file;
-    formData.value.imageUrl = URL.createObjectURL(file); // Локальный предпросмотр
-  }
-};
-
-// Ваша Vue-компонента
 const handleSubmit = async () => {
-  const formDataPayload = new FormData();
-  formDataPayload.append('title', formData.value.title);
-  formDataPayload.append('description', formData.value.description);
-  formDataPayload.append('category', formData.value.category);
-  formDataPayload.append('dateTime', new Date(formData.value.dateTime).toISOString());
-  formDataPayload.append('isLocal', formData.value.isLocal.toString());
-  if (formData.value.isLocal && formData.value.groupId) {
-    formDataPayload.append('groupId', formData.value.groupId);
-  }
-  formDataPayload.append('maxParticipantsCount', formData.value.maxParticipantsCount.toString());
-  formDataPayload.append('price', formData.value.price.toString());
-  if (formData.value.placeId) {
-    formDataPayload.append('placeId', formData.value.placeId);
-  }
-  formDataPayload.append('isFree', (formData.value.price === 0).toString());
-  if (formData.value.image) {
-    formDataPayload.append('image', formData.value.image); // Добавляем файл изображения
-  }
-
   try {
-    // TODO добавь axios
-    // мб проблема с content-type
+    const formPayload = new FormData();
+
+    // Basic fields
+    formPayload.append('title', formData.value.title);
+    formPayload.append('description', formData.value.description);
+    formPayload.append('categories', JSON.stringify(formData.value.categories));
+    formPayload.append('dateTime', new Date(formData.value.dateTime).toISOString());
+    formPayload.append('isLocal', formData.value.isLocal.toString());
+    formPayload.append('price', formData.value.price.toString());
+    formPayload.append('isFree', formData.value.isFree.toString());
+
+    // Conditional fields
+    if (formData.value.isLocal && formData.value.groupId) {
+      formPayload.append('groupId', formData.value.groupId);
+    }
+    if (formData.value.maxParticipantsCount) {
+      formPayload.append('maxParticipantsCount', formData.value.maxParticipantsCount.toString());
+    }
+    if (formData.value.location) {
+      formPayload.append('location', JSON.stringify(formData.value.location));
+    }
+    if (formData.value.imageFile) {
+      formPayload.append('image', formData.value.imageFile);
+    }
+
     const response = await fetch('http://localhost:2000/events', {
       method: 'POST',
       headers: {
-        // Не устанавливаем Content-Type вручную, так как FormData сам это сделает
         Authorization: `Bearer ${localStorage.getItem('authToken')}`
       },
-      body: formDataPayload
+      body: formPayload
     });
 
     if (!response.ok) {
@@ -272,83 +280,149 @@ const handleSubmit = async () => {
     await router.push({ name: RouteNames.HOME });
   } catch (error) {
     toast.error(`Error creating event: ${(error as Error).message}`);
+    console.error('Error details:', error);
   }
+};
+
+const resetForm = () => {
+  formData.value = {
+    title: '',
+    description: '',
+    categories: [],
+    dateTime: '',
+    isLocal: false,
+    groupId: null,
+    maxParticipantsCount: null,
+    location: null,
+    price: 0,
+    isFree: false,
+    imageFile: null
+  };
+  activeStep.value = 0;
 };
 </script>
 
 <style scoped>
-.container {
+.create-event-page {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  background-color: #f9fafb;
+  background-color: var(--color-background);
 }
 
 .main-content {
-  padding: 40px 80px;
+  flex: 1;
+  padding: 2rem 0;
+  background-color: var(--color-background-soft);
 }
 
-.event-form {
-  margin-top: 50px;
-}
-
-.input-select,
-.input-file {
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 10px;
-  width: 100%;
-  font-size: 18px;
-}
-
-.image-preview,
-.preview-image {
-  margin-top: 15px;
-  border-radius: 10px;
-  max-height: 300px;
-  width: auto;
-}
-
-.preview-card {
+.form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
   background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
 }
 
-.button-group {
+.form-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.form-field {
+  max-width: 500px;
+}
+
+.form-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: 1rem;
+}
+
+.form-step {
+  padding: 1rem 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.date-time-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.radio-card-group {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.form-actions {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
 }
 
-.button-back,
-.button-next {
-  padding: 10px 20px;
+.btn {
+  padding: 0.75rem 1.5rem;
   border-radius: 8px;
-  border: none;
-  color: white;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.button-back {
-  background-color: #6b7280;
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
 }
 
-.button-next {
-  background-color: #facc15;
+.btn-outline:hover {
+  background: var(--color-background-soft);
 }
 
-.button-next:hover {
-  background-color: #eab308;
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+  border: none;
 }
 
-.radio-group {
-  display: flex;
-  gap: 20px;
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.radio-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+@media (max-width: 768px) {
+  .form-container {
+    padding: 1.5rem;
+    border-radius: 0;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .date-time-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .radio-card-group {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -1,6 +1,5 @@
 <template>
   <main class="main">
-    <EventHeader />
     <HeroSearch @update:search="applySearch" />
 
     <div class="content-container">
@@ -14,8 +13,6 @@
         </div>
       </div>
     </div>
-
-    <FooterSection />
   </main>
 </template>
 
@@ -28,17 +25,17 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import EventHeader from '@/widgets/EventHeader.vue';
 import HeroSearch from '@/widgets/HeroSearch.vue';
 import FiltersSidebar from '@/widgets/FiltersSidebar.vue';
 import EventCard from '@/entities/EventCard.vue';
-import FooterSection from '@/widgets/FooterSection.vue';
 import SortSelector from '@/components/SortSelector.vue';
 import { computed, onMounted } from 'vue';
-import { type Filters, useEventStore } from '@/stores/eventStore';
+import { type Filters, useEventStore } from '@/shared/stores/eventStore';
 import type { EventType } from '@/shared/models/eventsModel';
+import { useUserStore } from '@/shared/stores/userStore';
 
 const eventStore = useEventStore();
+const userStore = useUserStore();
 
 // Свойства из стора
 const sortedEvents = computed<EventType[]>(() => eventStore.sortedEvents);
@@ -60,6 +57,7 @@ const setSortBy = (value: 'relevance' | 'date' | 'price') => {
 // Загрузка данных при монтировании
 onMounted(() => {
   eventStore.fetchEvents();
+  userStore.fetchUser();
 });
 </script>
 
@@ -79,7 +77,7 @@ onMounted(() => {
   gap: 20px;
   justify-content: space-between;
   align-items: flex-start;
-  margin: 64px auto 0;
+  padding: 2rem;
   width: 100%;
   max-width: 1720px;
 }

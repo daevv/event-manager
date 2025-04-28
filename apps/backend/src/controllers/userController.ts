@@ -7,7 +7,7 @@ import EventRegistration from '@/models/eventRegistration';
 export const getOrganizedEvents = async (req: Request, res: Response) => {
   try {
     const events = await Event.findAll({
-      where: { organizerId: req.user!.id }
+      where: { organizerId: req.params.id }
     });
 
     return res.json(events);

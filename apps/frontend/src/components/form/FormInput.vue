@@ -3,7 +3,7 @@
     <div class="input-container__info-block">
       <label :for="id" class="input-label">{{ label }}</label>
       <button v-if="showInputToggle" class="input-toggle" type="button" @click="toggleVisibility">
-        {{ isVisible ? 'Hide' : 'Show' }}
+        {{ isVisible ? 'Скрыть' : 'Показать' }}
       </button>
     </div>
     <input

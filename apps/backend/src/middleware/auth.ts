@@ -13,7 +13,6 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
   try {
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error('JWT_SECRET не определен');
-
     req.user = jwt.verify(token, secret) as { id: string };
     next();
   } catch (err) {

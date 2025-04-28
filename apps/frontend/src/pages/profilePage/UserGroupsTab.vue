@@ -97,8 +97,8 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { useGroupStore } from '@/stores/groupStore';
-import { useBlacklistStore } from '@/stores/blacklistStore';
+import { useGroupStore } from '@/shared/stores/groupStore';
+import { useBlacklistStore } from '@/shared/stores/blacklistStore';
 import InputModal from '@/widgets/InputModal.vue';
 
 const groupStore = useGroupStore();

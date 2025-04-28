@@ -45,17 +45,18 @@ import { LOGS } from '@/shared/models/logsModel';
 const users = ref(USERS);
 
 const getManagedEvents = (userId: number) => {
-  return EVENTS.filter((event) => event.adminIds.includes(userId)).map((event) => event.placeId);
+  return EVENTS.filter((event) => event.adminIds.includes(userId)).map((event) => event.id);
 };
 
 const getCreatedEvents = (userId: number) => {
-  return EVENTS.filter((event) => event.organiserId === userId).map((event) => event.placeId);
+  return EVENTS.filter((event) => event.organiserId === userId).map((event) => event.id);
 };
 
 const blockUser = (userId: number) => {
   const user = users.value.find((u) => u.id === userId);
   if (user) {
     user.isBlocked = true;
+    x;
     logAction('Блокировка пользователя', userId, null);
   }
 };

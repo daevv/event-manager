@@ -1,7 +1,6 @@
 <!-- src/pages/ProfilePage.vue -->
 <template>
   <main class="profile-page">
-    <EventHeader />
     <h1 class="page-title">Профиль пользователя</h1>
 
     <!-- Вкладки -->
@@ -32,18 +31,22 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import EventHeader from '@/widgets/EventHeader.vue';
 import UserGroupsTab from '@/pages/profilePage/UserGroupsTab.vue';
 import EventSettingsTab from '@/pages/profilePage/EventSettingsTab.vue';
-import ProfileTab from '@/pages/profilePage/ProfileTab.vue';
+import ProfileTab from '@/pages/profilePage/ProfileTab.vue'; // Вкладки
 
+type Tabs = 'general' | 'groups' | 'events';
+interface ProfileTabInterface {
+  id: Tabs;
+  name: string;
+}
 // Вкладки
-const tabs = [
+const tabs: ProfileTabInterface[] = [
   { id: 'general', name: 'Общие настройки' },
   { id: 'groups', name: 'Настройки групп' },
   { id: 'events', name: 'Настройки мероприятий' }
 ];
-const activeTab = ref<'general' | 'groups' | 'events'>('general');
+const activeTab = ref<Tabs>('general');
 </script>
 
 <style scoped>

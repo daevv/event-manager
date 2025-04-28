@@ -14,5 +14,8 @@ module.exports = {
   },
   parserOptions: {
     ecmaVersion: 'latest'
+  },
+  globals: {
+    google: 'readonly'
   }
 }

@@ -4,14 +4,19 @@ import type { STATUSES_MODEL } from '@/shared/models/statusesModel';
 export interface EventType {
   id: string;
   title: string;
-  placeId: string | null;
+  location: {
+    lat: number;
+    lng: number;
+    address: string;
+  } | null;
   description: string;
   dateTime: Date;
   isFree: boolean;
   isLocal: boolean;
+  isFavourite: boolean;
   groupId: string | null;
   price: number | null;
-  category: CATEGORY_MODEL;
+  categories: CATEGORY_MODEL[];
   image: string;
   participantsCount: number;
   maxParticipantsCount: number | null;

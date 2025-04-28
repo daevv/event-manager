@@ -24,6 +24,39 @@
   --font-size-xl: 2rem;
 }
 
+:root {
+  /* Основные цвета */
+  --color-primary: #3a86ff;       /* Яркий синий (акцентный цвет) */
+  --color-primary-dark: #2667cc;  /* Темный вариант primary */
+  --color-primary-light: #a8d1ff; /* Светлый вариант primary */
+  --color-primary-lightest: #e6f0ff; /* Очень светлый вариант */
+  --color-primary-rgb: 58, 134, 255; /* RGB для прозрачности */
+
+  /* Фоновые цвета */
+  --color-background: #f9fafb;    /* Основной фон страницы */
+  --color-background-soft: #f1f5f9; /* Мягкий фон компонентов */
+  --color-background-mute: #e2e8f0; /* Еще более светлый фон */
+
+  /* Текст */
+  --color-text: #1e293b;          /* Основной цвет текста */
+  --color-text-muted: #64748b;    /* Второстепенный текст */
+  --color-heading: #0f172a;       /* Заголовки */
+
+  /* Границы */
+  --color-border: #cbd5e1;        /* Стандартная граница */
+  --color-border-light: #e2e8f0;  /* Светлая граница */
+
+  /* Состояния */
+  --color-success: #10b981;       /* Успех */
+  --color-success-light: #d1fae5; /* Светлый успех */
+  --color-danger: #ef4444;        /* Ошибка */
+  --color-danger-light: #fee2e2;  /* Светлая ошибка */
+  --color-warning: #f59e0b;       /* Предупреждение */
+
+  /* Дополнительные */
+  --color-shadow: rgba(0, 0, 0, 0.1); /* Тень по умолчанию */
+}
+
 
 *,
 *::before,

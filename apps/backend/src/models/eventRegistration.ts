@@ -27,6 +27,6 @@ EventRegistration.init(
 );
 
 EventRegistration.belongsTo(Event, { foreignKey: 'eventId' });
-EventRegistration.belongsTo(User, { foreignKey: 'userId' });
+EventRegistration.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 export default EventRegistration;

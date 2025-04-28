@@ -8,13 +8,25 @@
       <!-- Навигация -->
       <nav class="nav">
         <router-link :to="{ name: RouteNames.HOME }" class="nav-link">Главная</router-link>
-        <router-link :to="{ name: RouteNames.AUTH }" class="nav-link">Войти</router-link>
+        <router-link :to="{ name: RouteNames.MY_EVENTS }" class="nav-link"
+          >Календарь событий</router-link
+        >
+        <router-link :to="{ name: RouteNames.FAVOURITES }" class="nav-link">Избранное</router-link>
         <router-link :to="{ name: RouteNames.PROFILE }" class="nav-link">Профиль</router-link>
       </nav>
 
       <router-link :to="{ name: RouteNames.EVENT_CREATE }" class="create-event-button">
         Создать событие
       </router-link>
+      <router-link :to="{ name: RouteNames.AUTH }" class="nav-link"
+        ><img alt="profile img" class="profile-link" src="../assets/images/user-profile.svg"
+      /></router-link>
+      <router-link :to="{ name: RouteNames.NOTIFICATIONS }" class="nav-link"
+        ><img
+          alt="profile img"
+          class="notifications-link"
+          src="../assets/images/notification_icon.svg"
+      /></router-link>
     </div>
   </header>
 </template>
@@ -28,7 +40,7 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { RouteNames } from '@/router';
+import { RouteNames } from '@/shared/router';
 </script>
 
 <style scoped>
@@ -75,6 +87,12 @@ import { RouteNames } from '@/router';
   color: #fff;
   text-decoration: none;
   transition: color 0.3s ease;
+  .profile-link,
+  .notifications-link {
+    height: 40px;
+    width: 40px;
+    align-content: center;
+  }
 }
 
 .nav-link:hover {
@@ -89,9 +107,7 @@ import { RouteNames } from '@/router';
   font-weight: 600;
   text-decoration: none;
   border-radius: 6px;
-  transition:
-    background 0.3s ease,
-    transform 0.2s ease;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .create-event-button:hover {

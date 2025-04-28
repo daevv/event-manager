@@ -57,7 +57,7 @@ export default defineComponent({
 <script lang="ts" setup>
 import type { EventType } from '@/shared/models/eventsModel';
 import { PLACES_DICT } from '@/shared/models/placesModel';
-import { RouteNames } from '@/router';
+import { RouteNames } from '@/shared/router';
 import { API_BASE_URL } from '@/config';
 
 const props = defineProps<{
@@ -71,8 +71,8 @@ function getImgSrc(): string {
 }
 
 function getPlaceName(): string {
-  if (!props.event.placeId) return 'Online or TBD';
-  const { title } = PLACES_DICT[props.event.placeId] || { title: 'Unknown Place' };
+  if (!props.event.location) return 'Online or TBD';
+  const { title } = PLACES_DICT[props.event.location.lat] || { title: 'Unknown Place' };
   return title;
 }
 
@@ -89,7 +89,7 @@ function formatTime(dateTime: Date | string): string {
 }
 
 function formatPrice(price: number | null): string {
-  return price !== null ? `${price} ₽` : 'Free';
+  return price ?? 0 > 0 ? `${price} ₽` : 'Бесплатно';
 }
 
 function onImageError(event: Event) {

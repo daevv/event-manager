@@ -1,25 +1,23 @@
 import { Request, Response } from 'express';
 import Comment from '@/models/сomment';
 import Event from '../models/event';
-import User from '@/models/user';
 
 export const createComment = async (req: Request, res: Response) => {
-  const { text, rating, event_id } = req.body;
+  const { text, rating, eventId } = req.body;
 
   // Проверяем существование мероприятия
-  const event = await Event.findByPk(event_id);
+  const event = await Event.findByPk(eventId);
   if (!event) return res.status(404).json({ message: 'Мероприятие не найдено' });
 
   // Валидация рейтинга
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
     return res.status(400).json({ message: 'Оценка должна быть целым числом от 1 до 5' });
   }
-
   const comment = await Comment.create({
     text,
     rating,
-    user_id: req.user?.id,
-    event_id
+    userId: req.user?.id,
+    eventId
   });
 
   res.status(201).json(comment);
@@ -60,8 +58,8 @@ export const getCommentsByEvent = async (req: Request, res: Response) => {
   if (!event) return res.status(404).json({ message: 'Мероприятие не найдено' });
 
   const comments = await Comment.findAll({
-    where: { event_id: req.params.event_id },
-    include: [{ model: User, as: 'user', attributes: ['id', 'name'] }]
+    where: { event_id: req.params.event_id }
+    // include: [{ model: User, as: 'user', attributes: ['id', 'name'] }]
   });
 
   res.json(comments);

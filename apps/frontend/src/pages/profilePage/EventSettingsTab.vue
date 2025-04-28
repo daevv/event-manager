@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
-import { useEventStore } from '@/stores/eventStore';
+import { useEventStore } from '@/shared/stores/eventStore';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue';
 import EventCard from '@/entities/EventCard.vue';
 

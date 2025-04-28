@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts" setup>
-import { RouteNames } from '@/router';
+import { RouteNames } from '@/shared/router';
 </script>
 
 <style scoped>
