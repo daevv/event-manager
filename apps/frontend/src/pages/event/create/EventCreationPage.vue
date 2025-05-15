@@ -137,12 +137,12 @@
 import { computed, onMounted, ref } from 'vue';
 import { useToast } from 'vue-toastification';
 import { useGroupStore } from '@/shared/stores/groupStore';
-import ProgressStepper from '@/components/ProgressStepper.vue';
-import FormField from '@/components/form/FormField.vue';
-import TagInput from '@/components/TagInput.vue';
-import ImageUploader from '@/components/ImageUploader.vue';
-import RadioCard from '@/components/form/RadioCard.vue';
-import EventPreviewCard from '@/components/EventPreviewCard.vue';
+import ProgressStepper from '@/shared/components/ProgressStepper.vue';
+import FormField from '@/shared/components/form/FormField.vue';
+import TagInput from '@/shared/components/TagInput.vue';
+import ImageUploader from '@/features/ImageUploader.vue';
+import RadioCard from '@/shared/components/form/RadioCard.vue';
+import EventPreviewCard from '@/pages/event/create/EventPreviewCard.vue';
 import router, { RouteNames } from '@/shared/router';
 import LocationPicker from '@/features/LocationPicker.vue';
 

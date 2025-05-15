@@ -39,7 +39,7 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import RatingModal from '@/widgets/RatingModal.vue';
+import RatingModal from '@/widgets/modals/RatingModal.vue';
 import { useToast } from 'vue-toastification';
 
 // Типы уведомлений
@@ -165,7 +165,9 @@ const markAsRead = (notification: Notification) => {
   padding: 1.5rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   border-left: 4px solid;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .notification-item:hover {

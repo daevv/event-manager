@@ -44,7 +44,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@/shared/stores/userStore';
 import { useEventStore } from '@/shared/stores/eventStore';
-import EventCard from '@/entities/EventCard.vue';
+import EventCard from '@/entities/Event/EventCard.vue';
 
 const route = useRoute();
 const userStore = useUserStore();

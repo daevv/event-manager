@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import axiosInstance from '@/shared/axiosInstance';
+import axiosInstance from '@/shared/utilities/axiosInstance';
 
 export interface User {
   id: number;

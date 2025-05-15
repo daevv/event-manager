@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import type { EventType } from '@/shared/models/eventsModel';
 import axios from 'axios';
-import axiosInstance from '@/shared/axiosInstance';
+import axiosInstance from '@/shared/utilities/axiosInstance';
 
 export interface Place {
   id: string;

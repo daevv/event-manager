@@ -99,7 +99,7 @@
 import { onMounted, ref } from 'vue';
 import { useGroupStore } from '@/shared/stores/groupStore';
 import { useBlacklistStore } from '@/shared/stores/blacklistStore';
-import InputModal from '@/widgets/InputModal.vue';
+import InputModal from '@/widgets/modals/InputModal.vue';
 
 const groupStore = useGroupStore();
 const blacklistStore = useBlacklistStore();

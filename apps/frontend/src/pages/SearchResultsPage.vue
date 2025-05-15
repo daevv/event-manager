@@ -27,8 +27,8 @@ export default defineComponent({
 <script lang="ts" setup>
 import HeroSearch from '@/widgets/HeroSearch.vue';
 import FiltersSidebar from '@/widgets/FiltersSidebar.vue';
-import EventCard from '@/entities/EventCard.vue';
-import SortSelector from '@/components/SortSelector.vue';
+import EventCard from '@/entities/Event/EventCard.vue';
+import SortSelector from '@/shared/components/SortSelector.vue';
 import { computed, onMounted } from 'vue';
 import { type Filters, useEventStore } from '@/shared/stores/eventStore';
 import type { EventType } from '@/shared/models/eventsModel';

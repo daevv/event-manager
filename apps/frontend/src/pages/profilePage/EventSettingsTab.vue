@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useEventStore } from '@/shared/stores/eventStore';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue';
-import EventCard from '@/entities/EventCard.vue';
+import EventCard from '@/entities/Event/EventCard.vue';
 
 const store = useEventStore();
 

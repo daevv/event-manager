@@ -15,7 +15,7 @@
 <script lang="ts" setup>
 import { useRouter } from 'vue-router';
 import { RouteNames } from '@/shared/router'; // Импортируем enum с именами маршрутов
-import FormButton from '@/components/form/FormButton.vue'; // Предполагаем, что у вас есть такой компонент
+import FormButton from '@/shared/components/form/FormButton.vue'; // Предполагаем, что у вас есть такой компонент
 
 // Используем useRouter для навигации
 const router = useRouter();

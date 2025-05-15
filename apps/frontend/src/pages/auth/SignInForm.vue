@@ -43,11 +43,11 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import FormInput from '@/components/form/FormInput.vue';
-import FormButton from '@/components/form/FormButton.vue';
+import FormInput from '@/shared/components/form/FormInput.vue';
+import FormButton from '@/shared/components/form/FormButton.vue';
 import router, { RouteNames } from '@/shared/router';
 import axios from 'axios';
-import axiosInstance from '@/shared/axiosInstance';
+import axiosInstance from '@/shared/utilities/axiosInstance';
 import { useUserStore } from '@/shared/stores/userStore';
 
 const emit = defineEmits<{

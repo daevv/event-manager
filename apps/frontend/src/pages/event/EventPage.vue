@@ -51,7 +51,7 @@
       <div class="event-contacts">
         <h2 class="section-title">Организатор</h2>
         <div class="organizer-info" @click="handleOrganizerClick">
-          <img alt="org-icon" class="user-icon" src="../assets/images/organizer_icon.jpeg" />
+          <img alt="org-icon" class="user-icon" src="../../assets/images/organizer_icon.jpeg" />
           <div class="organizer-info__content">
             <span class="organizer-name">{{ organizerData.name }}</span>
             <span class="organizer-email">{{ organizerData.email }}</span>

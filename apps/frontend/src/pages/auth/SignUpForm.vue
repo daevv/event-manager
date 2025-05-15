@@ -75,10 +75,10 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import FormInput from '@/components/form/FormInput.vue';
-import FormButton from '@/components/form/FormButton.vue';
+import FormInput from '@/shared/components/form/FormInput.vue';
+import FormButton from '@/shared/components/form/FormButton.vue';
 import axios from 'axios';
-import axiosInstance from '@/shared/axiosInstance';
+import axiosInstance from '@/shared/utilities/axiosInstance';
 
 const emit = defineEmits<{
   (evt: 'on-sign-in', withConfirmEmailModal?: boolean): void;

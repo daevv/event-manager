@@ -24,10 +24,10 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import SignInForm from '@/widgets/SignInForm.vue';
-import SignUpForm from '@/widgets/SignUpForm.vue';
+import SignInForm from '@/pages/auth/SignInForm.vue';
+import SignUpForm from '@/pages/auth/SignUpForm.vue';
 import { ref } from 'vue';
-import ConfirmModal from '@/widgets/ConfirmModal.vue';
+import ConfirmModal from '@/widgets/modals/ConfirmModal.vue';
 
 const isSignInState = ref<boolean>(false);
 const showConfirmModal = ref<boolean>(false);
@@ -46,7 +46,7 @@ function handleSwitch(withConfirmEmailModal = false): void {
   justify-content: space-between;
 
   .auth-page__bg {
-    background: url('../assets/images/auth_bg.jpeg') no-repeat center;
+    background: url('../../assets/images/auth_bg.jpeg') no-repeat center;
     background-size: cover;
     height: 100%;
     border-radius: 24px;

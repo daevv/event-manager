@@ -1,7 +1,7 @@
 // stores/commentStore.ts
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import axiosInstance from '@/shared/axiosInstance';
+import axiosInstance from '@/shared/utilities/axiosInstance';
 
 export const useCommentStore = defineStore('comment', () => {
   const comments = ref<Comment[]>([]);

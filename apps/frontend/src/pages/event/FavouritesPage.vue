@@ -13,7 +13,11 @@
       </div>
 
       <div v-else-if="favoriteEvents.length === 0" class="empty-state">
-        <img alt="Нет избранных" class="empty-image" src="@/assets/images/empty-favorites.svg" />
+        <img
+          alt="Нет избранных"
+          class="empty-image"
+          src="../../assets/images/empty-favorites.svg"
+        />
         <h2>У вас пока нет избранных мероприятий</h2>
         <p>Нажимайте на ♡ у интересных событий, чтобы добавить их сюда</p>
         <router-link :to="{ name: RouteNames.HOME }" class="explore-button"
@@ -37,7 +41,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
 import { useEventStore } from '@/shared/stores/eventStore';
-import EventCard from '@/entities/EventCard.vue';
+import EventCard from '@/entities/Event/EventCard.vue';
 import { RouteNames } from '@/shared/router';
 
 const eventStore = useEventStore();

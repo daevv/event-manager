@@ -1,11 +1,11 @@
 // router/index.ts
 import type { NavigationGuardNext, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 import { createRouter, createWebHistory } from 'vue-router';
-import AdminPanel from '@/pages/AdminPanel.vue';
-import AdminUsers from '@/pages/AdminUsers.vue';
-import AdminEvents from '@/pages/AdminEvents.vue';
-import AdminComments from '@/pages/AdminComments.vue';
-import AdminLogs from '@/pages/AdminLogs.vue';
+import AdminPanel from '@/pages/admin/AdminPanel.vue';
+import AdminUsers from '@/pages/admin/users/AdminUsers.vue';
+import AdminEvents from '@/pages/admin/events/AdminEvents.vue';
+import AdminComments from '@/pages/admin/comments/AdminComments.vue';
+import AdminLogs from '@/pages/admin/logs/AdminLogs.vue';
 
 // Enum с именами маршрутов
 export enum RouteNames {
@@ -62,13 +62,13 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/event/:id',
     name: RouteNames.EVENT_DETAILS,
-    component: () => import('@/pages/EventPage.vue'),
+    component: () => import('@/pages/event/EventPage.vue'),
     props: true
   },
   {
     path: '/auth',
     name: RouteNames.AUTH,
-    component: () => import('@/pages/SignInPage.vue')
+    component: () => import('@/pages/auth/SignInPage.vue')
   },
   {
     path: '/profile',
@@ -88,7 +88,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/favourites',
     name: RouteNames.FAVOURITES,
-    component: () => import('@/pages/FavouritesPage.vue')
+    component: () => import('@/pages/event/FavouritesPage.vue')
   },
   {
     path: '/organizer/:id',
@@ -98,13 +98,13 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/event/create',
     name: RouteNames.EVENT_CREATE,
-    component: () => import('@/pages/EventCreationPage.vue'),
+    component: () => import('@/pages/event/create/EventCreationPage.vue'),
     beforeEnter: requireAuth
   },
   {
     path: '/event/edit/:id',
     name: RouteNames.EVENT_EDIT,
-    component: () => import('@/pages/EventUpdatePage.vue'),
+    component: () => import('@/pages/event/edit/EventUpdatePage.vue'),
     props: true,
     beforeEnter: requireAuth
   },

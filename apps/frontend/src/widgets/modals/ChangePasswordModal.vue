@@ -57,7 +57,7 @@
 
 <script lang="ts" setup>
 import { defineEmits, ref } from 'vue';
-import axiosInstance from '@/shared/axiosInstance';
+import axiosInstance from '@/shared/utilities/axiosInstance';
 
 const emit = defineEmits(['close']);
 

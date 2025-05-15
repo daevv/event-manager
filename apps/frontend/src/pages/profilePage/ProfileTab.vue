@@ -70,8 +70,8 @@
 import { computed, ref } from 'vue';
 import { useUserStore } from '@/shared/stores/userStore';
 import { useToast } from 'vue-toastification';
-import InterestModal from '@/widgets/InterestModal.vue';
-import ChangePasswordModal from '@/widgets/ChangePasswordModal.vue';
+import InterestModal from '@/widgets/modals/InterestModal.vue';
+import ChangePasswordModal from '@/widgets/modals/ChangePasswordModal.vue';
 
 const toast = useToast();
 const userStore = useUserStore();
