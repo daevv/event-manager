@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Blacklist from '../models/blacklist';
 import User from '@/models/user';
+import { logger } from '@/services/logger';
 
 export const getBlockedUsers = async (req: Request, res: Response) => {
   try {
@@ -21,7 +22,7 @@ export const getBlockedUsers = async (req: Request, res: Response) => {
 
     res.json(blockedUsers);
   } catch (error) {
-    console.error('Ошибка при получении черного списка:', error);
+    logger.error('Get blacklists error', { error });
     res.status(500).json({ message: 'Произошла ошибка при получении черного списка' });
   }
 };

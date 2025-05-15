@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user';
 import { compare, hash } from 'bcryptjs';
 import { sendVerificationEmail } from '@/services/emailService';
+import { logger } from '@/services/logger';
 
 export const register = async (req: Request, res: Response) => {
   const { email, password, firstName, secondName } = req.body;
@@ -66,7 +67,7 @@ export const login = async (req: Request, res: Response) => {
     };
     res.json({ token, userWithoutSensitiveData });
   } catch (error) {
-    console.error('Login error:', error);
+    logger.error('Login error', { error });
     res.status(500).json({ message: 'Ошибка сервера' });
   }
 };
@@ -82,6 +83,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     }
     res.json({ message: 'Email подтвержден' });
   } catch (err) {
+    logger.error('Verify error', { err });
     res.status(400).json({ message: 'Неверный или просроченный токен' });
   }
 };
@@ -128,7 +130,7 @@ export const changePassword = async (req: Request, res: Response) => {
 
     res.json({ message: 'Пароль успешно изменён' });
   } catch (error) {
-    console.error('Change password error:', error);
+    logger.error('Change password error:', { error });
     res.status(500).json({ message: 'Ошибка сервера' });
   }
 };

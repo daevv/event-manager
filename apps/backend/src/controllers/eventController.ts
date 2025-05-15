@@ -6,6 +6,7 @@ import EventAdmin from '../models/eventAdmin';
 import EventRegistration from '../models/eventRegistration';
 import Blacklist from '../models/blacklist';
 import User from '@/models/user';
+import { logger } from '@/services/logger';
 
 // Конфигурация загрузки файлов
 const configureMulter = () => {
@@ -48,6 +49,7 @@ const validateEventData = (req: Request) => {
         throw new Error('Некорректный формат локации');
       }
     } catch (e) {
+      logger.error('Invalid location JSON', { e });
       throw new Error('Некорректный JSON локации');
     }
   }
@@ -56,7 +58,7 @@ const validateEventData = (req: Request) => {
 // Обработка ошибок контроллеров
 const handleControllerError = (res: Response, error: unknown, defaultMessage: string) => {
   const message = error instanceof Error ? error.message : defaultMessage;
-  console.error(error);
+  logger.error(message, { error });
   res.status(500).json({ message, error: message });
 };
 

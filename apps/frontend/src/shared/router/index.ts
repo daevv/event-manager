@@ -5,7 +5,7 @@ import AdminPanel from '@/pages/admin/AdminPanel.vue';
 import AdminUsers from '@/pages/admin/users/AdminUsers.vue';
 import AdminEvents from '@/pages/admin/events/AdminEvents.vue';
 import AdminComments from '@/pages/admin/comments/AdminComments.vue';
-import AdminLogs from '@/pages/admin/logs/AdminLogs.vue';
+import AdminLogs from '@/pages/admin/appLogs/AdminLogs.vue';
 
 // Enum с именами маршрутов
 export enum RouteNames {

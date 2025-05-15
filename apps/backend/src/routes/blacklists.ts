@@ -4,7 +4,7 @@ import * as blacklistController from '../controllers/blacklistController';
 
 const router = Router();
 
-router.post('/', authenticate, blacklistController.addToBlacklist);
+router.post('/add', authenticate, blacklistController.addToBlacklist);
 router.get('/', authenticate, blacklistController.getBlockedUsers);
 router.delete('/:id', authenticate, blacklistController.removeFromBlacklist);
 
