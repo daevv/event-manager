@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import UserGroup from '../models/userGroup';
 import GroupMember from '../models/groupMember';
 import User from '@/models/user';
+import { logger } from '@/services/logger';
 
 export const createGroup = async (req: Request, res: Response) => {
   const { name } = req.body;
@@ -42,10 +43,9 @@ export const getGroups = async (req: Request, res: Response) => {
 
     res.json(simplifiedGroups);
   } catch (error) {
-    console.error('Ошибка при получении групп:', error);
+    logger.error('Get groups error', { error });
     res.status(500).json({
-      message: 'Произошла ошибка при получении групп',
-      error: error.message
+      message: 'Произошла ошибка при получении групп'
     });
   }
 };

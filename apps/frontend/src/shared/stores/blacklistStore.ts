@@ -12,7 +12,7 @@ export const useBlacklistStore = defineStore('blacklistStore', {
     },
     async addToBlacklist(email: string) {
       try {
-        await axiosInstance.post('/blacklists', { email });
+        await axiosInstance.post('/blacklists/add', { email });
       } catch (err: any) {
         throw new Error(err.response?.data?.message || 'Ошибка при добавлении в ЧС');
       }

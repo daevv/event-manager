@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Event from '@/models/event';
 import EventAdmin from '@/models/eventAdmin';
 import EventRegistration from '@/models/eventRegistration';
+import { logger } from '@/services/logger';
 
 // 1. Мероприятия, где пользователь — организатор
 export const getOrganizedEvents = async (req: Request, res: Response) => {
@@ -12,7 +13,7 @@ export const getOrganizedEvents = async (req: Request, res: Response) => {
 
     return res.json(events);
   } catch (error) {
-    console.error('Error fetching organized events:', error);
+    logger.error('Error fetching organized events', { error });
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -33,7 +34,7 @@ export const getAdministeredEvents = async (req: Request, res: Response) => {
 
     return res.json(events);
   } catch (error) {
-    console.error('Error fetching administered events:', error);
+    logger.error('Error fetching administered events', { error });
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -57,7 +58,7 @@ export const getRegisteredEvents = async (req: Request, res: Response) => {
 
     return res.json(events);
   } catch (error) {
-    console.error('Error fetching registered events:', error);
+    logger.error('Error fetching registered events', { error });
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
