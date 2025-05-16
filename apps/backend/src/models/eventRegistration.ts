@@ -1,13 +1,16 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '@/config/db';
-import Event from './event';
-import User from './user';
 
 class EventRegistration extends Model {
   public id!: string;
   public eventId!: string;
   public userId!: string;
   public status!: 'registered' | 'cancelled';
+
+  static associate(models: any) {
+    this.belongsTo(models.Event, { foreignKey: 'eventId' });
+    this.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+  }
 }
 
 EventRegistration.init(
@@ -25,8 +28,5 @@ EventRegistration.init(
     underscored: true
   }
 );
-
-EventRegistration.belongsTo(Event, { foreignKey: 'eventId' });
-EventRegistration.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 export default EventRegistration;

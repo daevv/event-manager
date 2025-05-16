@@ -1,12 +1,15 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '@/config/db';
-import User from './user';
-import GroupMember from '@/models/groupMember';
 
 class UserGroup extends Model {
   public id!: string;
   public name!: string;
   public ownerId!: string;
+
+  static associate(models: any) {
+    this.belongsTo(models.User, { foreignKey: 'ownerId', as: 'owner' });
+    this.hasMany(models.GroupMember, { foreignKey: 'groupId' });
+  }
 }
 
 UserGroup.init(
@@ -23,8 +26,5 @@ UserGroup.init(
     underscored: true
   }
 );
-
-UserGroup.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
-UserGroup.hasMany(GroupMember, { foreignKey: 'groupId' });
 
 export default UserGroup;

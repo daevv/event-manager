@@ -2,3 +2,23 @@
 2025-05-15 12:48:42 [error]: Failed to save HTTP log to database
 2025-05-15 12:49:11 [error]: Failed to save HTTP log to database
 2025-05-15 12:49:27 [error]: Failed to save HTTP log to database
+2025-05-15 19:34:55 [error]: Cannot read properties of undefined (reading 'id')
+2025-05-15 19:34:55 [error]: Cannot read properties of undefined (reading 'id')
+2025-05-15 19:37:05 [error]: Event is not associated to Notification!
+2025-05-15 19:50:16 [error]: Event is not associated to Notification!
+2025-05-15 19:53:08 [error]: Event is not associated to Notification!
+2025-05-15 20:32:41 [error]: Event is not associated to Notification!
+2025-05-16 12:02:33 [error]: relation "events" does not exist
+2025-05-16 12:37:07 [error]: Cannot set headers after they are sent to the client
+2025-05-16 12:37:59 [error]: Cannot set headers after they are sent to the client
+2025-05-16 12:38:30 [error]: Cannot set headers after they are sent to the client
+2025-05-16 12:39:48 [error]: Cannot set headers after they are sent to the client
+2025-05-16 12:58:40 [error]: Verify error
+2025-05-16 13:15:28 [error]: Verify error
+2025-05-16 13:55:54 [error]: notNull Violation: Notification.userId cannot be null
+2025-05-16 13:58:16 [error]: notNull Violation: Notification.userId cannot be null
+2025-05-16 13:59:15 [error]: notNull Violation: Notification.userId cannot be null
+2025-05-16 14:00:41 [error]: column "nan" does not exist
+2025-05-16 14:00:42 [error]: column "nan" does not exist
+2025-05-16 14:00:44 [error]: column "nan" does not exist
+2025-05-16 14:00:45 [error]: column "nan" does not exist

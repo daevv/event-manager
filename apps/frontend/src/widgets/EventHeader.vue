@@ -8,20 +8,28 @@
       <!-- Навигация -->
       <nav class="nav">
         <router-link :to="{ name: RouteNames.HOME }" class="nav-link">Главная</router-link>
-        <router-link :to="{ name: RouteNames.MY_EVENTS }" class="nav-link"
+        <router-link v-if="isAuthenticated" :to="{ name: RouteNames.MY_EVENTS }" class="nav-link"
           >Календарь событий</router-link
         >
-        <router-link :to="{ name: RouteNames.FAVOURITES }" class="nav-link">Избранное</router-link>
-        <router-link :to="{ name: RouteNames.PROFILE }" class="nav-link">Профиль</router-link>
+        <router-link v-if="isAuthenticated" :to="{ name: RouteNames.FAVOURITES }" class="nav-link"
+          >Избранное</router-link
+        >
+        <router-link v-if="isAuthenticated" :to="{ name: RouteNames.PROFILE }" class="nav-link"
+          >Профиль</router-link
+        >
       </nav>
 
-      <router-link :to="{ name: RouteNames.EVENT_CREATE }" class="create-event-button">
+      <router-link
+        v-if="isAuthenticated"
+        :to="{ name: RouteNames.EVENT_CREATE }"
+        class="create-event-button"
+      >
         Создать событие
       </router-link>
       <router-link :to="{ name: RouteNames.AUTH }" class="nav-link"
         ><img alt="profile img" class="profile-link" src="../assets/images/user-profile.svg"
       /></router-link>
-      <router-link :to="{ name: RouteNames.NOTIFICATIONS }" class="nav-link"
+      <router-link v-if="isAuthenticated" :to="{ name: RouteNames.NOTIFICATIONS }" class="nav-link"
         ><img
           alt="profile img"
           class="notifications-link"
@@ -41,6 +49,12 @@ export default defineComponent({
 
 <script lang="ts" setup>
 import { RouteNames } from '@/shared/router';
+import { computed } from 'vue';
+import { useUserStore } from '@/shared/stores/userStore';
+
+const userStore = useUserStore();
+
+const isAuthenticated = computed<boolean>(() => userStore.token !== null);
 </script>
 
 <style scoped>
@@ -107,7 +121,9 @@ import { RouteNames } from '@/shared/router';
   font-weight: 600;
   text-decoration: none;
   border-radius: 6px;
-  transition: background 0.3s ease, transform 0.2s ease;
+  transition:
+    background 0.3s ease,
+    transform 0.2s ease;
 }
 
 .create-event-button:hover {

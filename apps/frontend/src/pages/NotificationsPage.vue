@@ -4,23 +4,23 @@
 
     <div class="notifications-list">
       <div
-        v-for="notification in sortedNotifications"
+        v-for="notification in notifications"
         :key="notification.id"
         :class="['notification-item', `type-${notification.type}`, { unread: !notification.read }]"
         @click="markAsRead(notification)"
       >
         <div class="notification-header">
           <span class="notification-type">{{ typeLabels[notification.type] }}</span>
-          <span class="notification-date">{{ formatDate(notification.date) }}</span>
+          <span class="notification-date">{{ formatDate(notification.createdAt) }}</span>
         </div>
 
         <h3 class="notification-title">{{ notification.title }}</h3>
         <p class="notification-content">{{ notification.content }}</p>
 
         <button
-          v-if="notification.type === 'event_completed'"
+          v-if="notification.type === 'event_completed' && notification.eventId"
           class="action-button"
-          @click="openRatingModal(notification.eventId)"
+          @click.stop="openRatingModal(notification.eventId)"
         >
           Оценить мероприятие
         </button>
@@ -38,59 +38,15 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import RatingModal from '@/widgets/modals/RatingModal.vue';
 import { useToast } from 'vue-toastification';
-
-// Типы уведомлений
-type NotificationType =
-  | 'event_update'
-  | 'event_delete'
-  | 'admin_assigned'
-  | 'event_registration'
-  | 'event_cancel'
-  | 'event_completed';
-
-interface Notification {
-  id: number;
-  type: NotificationType;
-  date: Date;
-  title: string;
-  content: string;
-  eventId?: string;
-  read: boolean;
-}
+import { useNotificationStore } from '@/shared/stores/notificationStore';
+import { storeToRefs } from 'pinia';
 
 const toast = useToast();
-
-// Моковые данные - замените на реальные
-const notifications = ref<Notification[]>([
-  {
-    id: 1,
-    type: 'event_update',
-    date: new Date('2023-05-15'),
-    title: 'Изменение в мероприятии',
-    content: 'В мероприятии "Городская экскурсия" изменилось время проведения',
-    read: false
-  },
-  {
-    id: 2,
-    type: 'event_completed',
-    date: new Date('2023-05-10'),
-    title: 'Мероприятие завершено',
-    content: 'Мероприятие "Мастер-класс по фотографии" успешно завершено',
-    eventId: '238ed568-abae-4bfb-a16e-21c4d4a70e08',
-    read: false
-  },
-  {
-    id: 3,
-    type: 'admin_assigned',
-    date: new Date('2023-05-05'),
-    title: 'Новые права',
-    content: 'Вас назначили администратором группы "Культурные события"',
-    read: false
-  }
-]);
+const notificationStore = useNotificationStore();
+const { notifications, unreadCount } = storeToRefs(notificationStore);
 
 const showRatingModal = ref(false);
 const currentEventId = ref<string | null>(null);
@@ -101,23 +57,34 @@ const typeLabels = {
   admin_assigned: 'Назначение',
   event_registration: 'Запись',
   event_cancel: 'Отмена',
-  event_completed: 'Завершение'
-};
+  event_completed: 'Завершение',
+  group_added: 'Группа',
+  group_event_created: 'Групповое мероприятие'
+} as const; // as const для точной типизации
 
-// Сортируем по дате (новые сверху)
-const sortedNotifications = computed(() => {
-  return [...notifications.value].sort((a, b) => b.date.getTime() - a.date.getTime());
+// Тип для уведомления
+interface Notification {
+  id: number;
+  type: keyof typeof typeLabels;
+  title: string;
+  content: string;
+  read: boolean;
+  eventId?: string;
+  createdAt: string;
+}
+
+onMounted(async () => {
+  await Promise.all([notificationStore.fetchNotifications(), notificationStore.fetchUnreadCount()]);
 });
 
-const unreadCount = computed(() => {
-  return notifications.value.filter((n) => !n.read).length;
-});
-
-const formatDate = (date: Date) => {
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
   return date.toLocaleDateString('ru-RU', {
     day: 'numeric',
     month: 'long',
-    year: 'numeric'
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
   });
 };
 
@@ -134,8 +101,13 @@ const handleRatingSubmit = () => {
   toast.success('Спасибо за вашу оценку!');
 };
 
-const markAsRead = (notification: Notification) => {
-  console.log(notification);
+const markAsRead = async (notificationId: number) => {
+  try {
+    await notificationStore.markAsRead(notificationId);
+  } catch (error) {
+    console.error('Ошибка при отметке уведомления как прочитанного:', error);
+    toast.error('Не удалось обновить статус уведомления');
+  }
 };
 </script>
 
