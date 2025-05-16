@@ -1,11 +1,15 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '@/config/db';
-import User from './user';
 
 class Blacklist extends Model {
   public id!: string;
   public organizerId!: string;
   public bannedUserId!: string;
+
+  static associate(models: any) {
+    this.belongsTo(models.User, { foreignKey: 'organizerId', as: 'organizer' });
+    this.belongsTo(models.User, { foreignKey: 'bannedUserId', as: 'bannedUser' });
+  }
 }
 
 Blacklist.init(
@@ -22,8 +26,5 @@ Blacklist.init(
     underscored: true
   }
 );
-
-Blacklist.belongsTo(User, { foreignKey: 'organizerId', as: 'organizer' });
-Blacklist.belongsTo(User, { foreignKey: 'bannedUserId', as: 'bannedUser' });
 
 export default Blacklist;

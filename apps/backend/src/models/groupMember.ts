@@ -1,11 +1,15 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '@/config/db';
-import User from './user';
 
 class GroupMember extends Model {
   public id!: string;
   public groupId!: string;
   public userId!: string;
+
+  static associate(models: any) {
+    this.belongsTo(models.UserGroup, { foreignKey: 'groupId' });
+    this.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+  }
 }
 
 GroupMember.init(
@@ -22,8 +26,5 @@ GroupMember.init(
     underscored: true
   }
 );
-
-//GroupMember.belongsTo(UserGroup, { foreignKey: 'groupId' });
-GroupMember.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 export default GroupMember;

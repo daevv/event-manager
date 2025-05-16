@@ -18,66 +18,31 @@ class Log extends Model {
 
 Log.init(
   {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    level: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
-    meta: {
-      type: DataTypes.JSONB,
-      allowNull: true
-    },
-    timestamp: {
-      type: DataTypes.DATE,
-      allowNull: false
-    },
-    method: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    url: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    status: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    responseTime: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    userAgent: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    ip: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    userId: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
+    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    level: { type: DataTypes.STRING, allowNull: false },
+    message: { type: DataTypes.TEXT, allowNull: false },
+    meta: { type: DataTypes.JSONB, allowNull: true },
+    timestamp: { type: DataTypes.DATE, allowNull: false },
+    method: { type: DataTypes.STRING, allowNull: true },
+    url: { type: DataTypes.TEXT, allowNull: true },
+    status: { type: DataTypes.INTEGER, allowNull: true },
+    responseTime: { type: DataTypes.STRING, allowNull: true },
+    userAgent: { type: DataTypes.TEXT, allowNull: true },
+    ip: { type: DataTypes.STRING, allowNull: true },
+    userId: { type: DataTypes.STRING, allowNull: true }
   },
   {
     sequelize,
+    modelName: 'Log',
     tableName: 'logs',
     timestamps: false,
+    underscored: true,
     indexes: [
       { fields: ['level'] },
       { fields: ['timestamp'] },
       { fields: ['method'] },
       { fields: ['status'] },
-      { fields: ['userId'] }
+      { fields: ['user_id'] }
     ]
   }
 );

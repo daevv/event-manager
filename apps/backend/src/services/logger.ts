@@ -29,7 +29,6 @@ export const morganToDb = () => {
       try {
         // Парсим сообщение Morgan (формат 'combined')
         const logEntry = parseMorganMessage(message);
-        console.log(logEntry.userId);
         // Добавляем userId из meta (если есть)
 
         await Log.create({
@@ -57,7 +56,6 @@ export const morganToDb = () => {
 
 // Парсер сообщения Morgan в формате 'combined'
 const parseMorganMessage = (message: string, req?: Request) => {
-  console.log(message);
   const parts = message.split(' ');
   return {
     ip: parts[0] || '',

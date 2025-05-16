@@ -1,12 +1,15 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '@/config/db';
-import Event from './event';
-import User from './user';
 
 class EventAdmin extends Model {
   public id!: string;
   public eventId!: string;
   public userId!: string;
+
+  static associate(models: any) {
+    this.belongsTo(models.Event, { foreignKey: 'eventId' });
+    this.belongsTo(models.User, { foreignKey: 'userId' });
+  }
 }
 
 EventAdmin.init(
@@ -23,8 +26,5 @@ EventAdmin.init(
     underscored: true
   }
 );
-
-EventAdmin.belongsTo(Event, { foreignKey: 'eventId' });
-EventAdmin.belongsTo(User, { foreignKey: 'userId' });
 
 export default EventAdmin;

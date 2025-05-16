@@ -7,6 +7,9 @@ import EventRegistration from '../models/eventRegistration';
 import Blacklist from '../models/blacklist';
 import User from '@/models/user';
 import { logger } from '@/services/logger';
+import { createNotification } from '@/services/notificationService';
+import { NotificationType } from '@/models/notification';
+import GroupMember from '@/models/groupMember';
 
 // Конфигурация загрузки файлов
 const configureMulter = () => {
@@ -58,8 +61,13 @@ const validateEventData = (req: Request) => {
 // Обработка ошибок контроллеров
 const handleControllerError = (res: Response, error: unknown, defaultMessage: string) => {
   const message = error instanceof Error ? error.message : defaultMessage;
-  logger.error(message, { error });
-  res.status(500).json({ message, error: message });
+
+  if (!res.headersSent) {
+    logger.error(message, { error });
+    res.status(500).json({ error: message });
+  } else {
+    console.error('Ответ уже отправлен:', message, error);
+  }
 };
 
 // Контроллеры событий
@@ -101,6 +109,32 @@ export const eventController = {
         };
 
         const event = await Event.create(eventData);
+
+        // Если мероприятие создано для группы, уведомляем всех участников
+        if (groupId) {
+          const members = await GroupMember.findAll({
+            where: { groupId },
+            attributes: ['userId'],
+            raw: true
+          });
+
+          if (members.length > 0) {
+            const userIds = members.map((m) => m.userId);
+
+            await Promise.all(
+              userIds.map((userId) =>
+                createNotification({
+                  userId,
+                  type: NotificationType.GROUP_EVENT_CREATED,
+                  title: 'Новое групповое мероприятие',
+                  content: `В группе создано новое мероприятие "${title}", в котором вы можете принять участие`,
+                  eventId: event.id,
+                  groupId
+                })
+              )
+            );
+          }
+        }
         res.status(201).json(event);
       } catch (error) {
         handleControllerError(res, error, 'Ошибка при создании события');
@@ -114,7 +148,7 @@ export const eventController = {
       // if (!req.user) where.isLocal = false; // Только публичные для неавторизованных
 
       const events = await Event.findAll({ where });
-      res.json(events);
+      return res.json(events);
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при получении событий');
     }
@@ -147,8 +181,31 @@ export const eventController = {
       if (eventData.organizerId !== req.user?.id && !isAdmin) {
         return res.status(403).json({ message: 'Нет доступа' });
       }
-      console.log(req.body);
       await event.update(req.body);
+
+      // Получаем всех зарегистрированных пользователей
+      const registrations = await EventRegistration.findAll({
+        where: { eventId: event.id },
+        attributes: ['userId'],
+        raw: true
+      });
+
+      // Создаем уведомления для всех участников
+      if (registrations.length > 0) {
+        const userIds = registrations.map((r) => r.userId);
+
+        await Promise.all(
+          userIds.map((userId) =>
+            createNotification({
+              userId,
+              type: NotificationType.EVENT_UPDATE,
+              title: 'Изменение мероприятия',
+              content: `В мероприятии "${event.title}", на которое вы зарегистрированы, произошли изменения`,
+              eventId: event.id
+            })
+          )
+        );
+      }
       res.json(event);
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при обновлении события');
@@ -166,7 +223,32 @@ export const eventController = {
         return res.status(403).json({ message: 'Только организатор может удалить мероприятие' });
       }
 
+      // Получаем всех зарегистрированных пользователей перед удалением
+      const registrations = await EventRegistration.findAll({
+        where: { eventId: event.id },
+        attributes: ['userId']
+      });
+
+      const eventTitle = event.dataValues.title;
       await event.destroy();
+
+      // Создаем уведомления для всех участников
+      if (registrations.length > 0) {
+        const userIds = registrations.map((r) => r.userId);
+
+        await Promise.all(
+          userIds.map((userId) =>
+            createNotification({
+              userId,
+              type: NotificationType.EVENT_DELETE,
+              title: 'Мероприятие отменено',
+              content: `Мероприятие "${eventTitle}", на которое вы были зарегистрированы, было отменено`,
+              eventId: event.id
+            })
+          )
+        );
+      }
+
       res.json({ message: 'Мероприятие удалено' });
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при удалении события');
@@ -188,6 +270,17 @@ export const eventController = {
 
       const { userId } = req.body;
       await EventAdmin.create({ eventId: event.id, userId });
+
+      const organizer = await User.findByPk(req.user.id, { raw: true });
+      await createNotification({
+        userId,
+        type: NotificationType.ADMIN_ASSIGNED,
+        title: 'Новые права администратора',
+        content: `Пользователь ${
+          organizer?.name || 'Аноним'
+        } назначил вас администратором мероприятия "${event.title}"`,
+        eventId: event.id
+      });
       res.status(201).json({ message: 'Администратор добавлен' });
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при добавлении администратора');
@@ -276,6 +369,17 @@ export const eventController = {
       });
 
       await event.increment('participantsCount');
+
+      const user = await User.findByPk(req.user!.id, { raw: true });
+      await createNotification({
+        userId: eventData.organizerId,
+        type: NotificationType.EVENT_REGISTRATION,
+        title: 'Новая регистрация на мероприятие',
+        content: `Пользователь ${user?.name || 'Аноним'} зарегистрировался на ваше мероприятие "${
+          eventData.title
+        }"`,
+        eventId: eventData.id
+      });
       res.status(201).json(event);
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при регистрации на событие');
@@ -300,6 +404,16 @@ export const eventController = {
 
       if (event) {
         await event.decrement('participantsCount');
+        const user = await User.findByPk(req.params?.user_id, { raw: true });
+        await createNotification({
+          userId: event.dataValues.organizerId,
+          type: NotificationType.EVENT_CANCEL,
+          title: 'Отмена регистрации на мероприятие',
+          content: `Пользователь ${
+            user?.name || 'Аноним'
+          } отменил регистрацию на ваше мероприятие "${event.dataValues.title}"`,
+          eventId: event.dataValues.id
+        });
       }
 
       res.json({ message: 'Запись отменена' });

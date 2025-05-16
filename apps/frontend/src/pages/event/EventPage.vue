@@ -122,7 +122,7 @@ const organizerData = computed(() => ({
   email: organizer.value?.email ?? 'testMail@mail.ru'
 }));
 
-const canUpdate = computed<boolean>(() => userStore.user.id === event.value?.organizerId);
+const canUpdate = computed<boolean>(() => userStore.user?.id === event.value?.organizerId);
 
 // Получаем URL изображения
 const imgSrc = computed(() =>

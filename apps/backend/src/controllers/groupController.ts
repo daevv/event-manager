@@ -3,6 +3,8 @@ import UserGroup from '../models/userGroup';
 import GroupMember from '../models/groupMember';
 import User from '@/models/user';
 import { logger } from '@/services/logger';
+import { createNotification } from '@/services/notificationService';
+import { NotificationType } from '@/models/notification';
 
 export const createGroup = async (req: Request, res: Response) => {
   const { name } = req.body;
@@ -75,6 +77,15 @@ export const addMember = async (req: Request, res: Response) => {
   }
 
   await GroupMember.create({ groupId: group.id, userId: user.id });
+
+  const owner = await User.findByPk(req.user!.id, { raw: true });
+  await createNotification({
+    userId: user.id,
+    type: NotificationType.GROUP_ADDED,
+    title: 'Добавление в группу',
+    content: `Пользователь ${owner?.name || 'Аноним'} добавил вас в группу "${group.name}"`,
+    groupId: group.id
+  });
   res.status(201).json({ message: 'Участник добавлен' });
 };
 

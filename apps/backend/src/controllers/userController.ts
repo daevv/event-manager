@@ -21,8 +21,13 @@ export const getOrganizedEvents = async (req: Request, res: Response) => {
 // 2. Мероприятия, где пользователь — администратор
 export const getAdministeredEvents = async (req: Request, res: Response) => {
   try {
+    // Проверяем, что req.user существует и имеет id
+    if (!req.user || !req.user.id) {
+      logger.error('Пользователь не авторизован или отсутствует user.id', { user: req.user });
+      return res.status(401).json({ message: 'Требуется авторизация' });
+    }
     const adminEventIds = await EventAdmin.findAll({
-      where: { userId: req.user!.id },
+      where: { userId: req.user.id },
       attributes: ['eventId']
     });
 
@@ -34,8 +39,8 @@ export const getAdministeredEvents = async (req: Request, res: Response) => {
 
     return res.json(events);
   } catch (error) {
-    logger.error('Error fetching administered events', { error });
-    return res.status(500).json({ message: 'Internal server error' });
+    logger.error('Ошибка при получении администрируемых событий', { error });
+    return res.status(500).json({ message: 'Внутренняя ошибка сервера' });
   }
 };
 
