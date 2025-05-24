@@ -54,7 +54,7 @@ import { useUserStore } from '@/shared/stores/userStore';
 
 const userStore = useUserStore();
 
-const isAuthenticated = computed<boolean>(() => userStore.token !== null);
+const isAuthenticated = true;
 </script>
 
 <style scoped>

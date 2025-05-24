@@ -45,23 +45,11 @@ import EventCard from '@/entities/Event/EventCard.vue';
 import { RouteNames } from '@/shared/router';
 
 const eventStore = useEventStore();
+
 const loading = ref(false);
 const error = ref<string | null>(null);
 
 const favoriteEvents = computed(() => eventStore.favouriteEvents);
-
-const fetchFavorites = async () => {
-  try {
-    loading.value = true;
-    error.value = null;
-    await eventStore.fetchEvents();
-  } catch (e) {
-    error.value = 'Не удалось загрузить избранные мероприятия';
-    console.error(e);
-  } finally {
-    loading.value = false;
-  }
-};
 
 const toggleFavorite = async (eventId: string) => {
   try {
@@ -72,7 +60,7 @@ const toggleFavorite = async (eventId: string) => {
 };
 
 onMounted(() => {
-  fetchFavorites();
+  console.log(favoriteEvents);
 });
 </script>
 

@@ -1,17 +1,18 @@
 import { Request, Response } from 'express';
 import path from 'path';
 import multer from 'multer';
+import { Sequelize } from 'sequelize';
 import Event from '../models/event';
 import EventAdmin from '../models/eventAdmin';
 import EventRegistration from '../models/eventRegistration';
 import Blacklist from '../models/blacklist';
 import User from '@/models/user';
+import UserGroup from '@/models/userGroup';
 import { logger } from '@/services/logger';
 import { createNotification } from '@/services/notificationService';
 import { NotificationType } from '@/models/notification';
-import GroupMember from '@/models/groupMember';
 
-// Конфигурация загрузки файлов
+// Конфигурация Multer для загрузки файлов
 const configureMulter = () => {
   const storage = multer.diskStorage({
     destination: 'uploads/',
@@ -24,12 +25,12 @@ const configureMulter = () => {
   return multer({
     storage,
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-    fileFilter: (req: Request, file, cb) => {
+    fileFilter: (req, file, cb) => {
       const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
       if (validTypes.includes(file.mimetype)) {
         cb(null, true);
       } else {
-        cb(new Error('Только изображения формата JPEG или PNG!'));
+        cb(new Error('Только изображения формата JPEG или PNG'));
       }
     }
   }).single('image');
@@ -39,7 +40,11 @@ const upload = configureMulter();
 
 // Валидация данных события
 const validateEventData = (req: Request) => {
-  const { isLocal, groupId, location } = req.body;
+  const { title, description, dateTime, isLocal, groupId, location, categories } = req.body;
+
+  if (!title || !description || !dateTime) {
+    throw new Error('Обязательные поля: title, description, dateTime');
+  }
 
   if (isLocal === 'true' && !groupId) {
     throw new Error('groupId обязателен для локальных мероприятий');
@@ -48,20 +53,28 @@ const validateEventData = (req: Request) => {
   if (location) {
     try {
       const parsedLocation = JSON.parse(location);
-      if (!parsedLocation?.lat || !parsedLocation?.lng) {
-        throw new Error('Некорректный формат локации');
+      if (!parsedLocation?.lat || !parsedLocation?.lng || !parsedLocation?.address) {
+        throw new Error('Локация должна содержать lat, lng и address');
       }
     } catch (e) {
-      logger.error('Invalid location JSON', { e });
+      logger.warn('Invalid location JSON', { location, error: e });
       throw new Error('Некорректный JSON локации');
+    }
+  }
+
+  if (categories) {
+    try {
+      JSON.parse(categories);
+    } catch (e) {
+      logger.warn('Invalid categories JSON', { categories, error: e });
+      throw new Error('Некорректный JSON категорий');
     }
   }
 };
 
-// Обработка ошибок контроллеров
+// Обработка ошибок
 const handleControllerError = (res: Response, error: unknown, defaultMessage: string) => {
   const message = error instanceof Error ? error.message : defaultMessage;
-
   if (!res.headersSent) {
     logger.error(message, { error });
     res.status(500).json({ error: message });
@@ -74,11 +87,18 @@ const handleControllerError = (res: Response, error: unknown, defaultMessage: st
 export const eventController = {
   createEvent: async (req: Request, res: Response) => {
     upload(req, res, async (err) => {
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ message: 'Ошибка загрузки файла: ' + err.message });
+      }
       if (err) {
         return res.status(400).json({ message: err.message });
       }
 
       try {
+        if (!req.user?.id) {
+          return res.status(401).json({ message: 'Требуется авторизация' });
+        }
+
         validateEventData(req);
 
         const {
@@ -90,52 +110,54 @@ export const eventController = {
           categories,
           isFree,
           price,
-          maxParticipantsCount
+          maxParticipantsCount,
+          location
         } = req.body;
 
         const eventData = {
           title,
           description,
-          dateTime,
-          organizerId: req.user?.id as string,
+          dateTime: new Date(dateTime),
+          organizerId: req.user.id,
           isLocal: isLocal === 'true',
-          groupId,
+          groupId: groupId || null,
           categories: categories ? JSON.parse(categories) : [],
           isFree: isFree === 'true',
           price: price ? Number(price) : null,
           maxParticipantsCount: maxParticipantsCount ? Number(maxParticipantsCount) : null,
-          location: req.body.location ? JSON.parse(req.body.location) : null,
+          location: location ? JSON.parse(location) : null,
           imageUrl: req.file ? `/uploads/${req.file.filename}` : null
         };
 
         const event = await Event.create(eventData);
+        const eventValues = event.dataValues;
 
-        // Если мероприятие создано для группы, уведомляем всех участников
+        // Уведомления для участников группы
         if (groupId) {
-          const members = await GroupMember.findAll({
-            where: { groupId },
-            attributes: ['userId'],
-            raw: true
-          });
+          const group = await UserGroup.findByPk(groupId);
+          if (!group) {
+            return res.status(404).json({ message: 'Группа не найдена' });
+          }
 
+          const groupValues = group.dataValues;
+          const members = groupValues.members || [];
           if (members.length > 0) {
-            const userIds = members.map((m) => m.userId);
-
             await Promise.all(
-              userIds.map((userId) =>
+              members.map((userId: string) =>
                 createNotification({
                   userId,
                   type: NotificationType.GROUP_EVENT_CREATED,
                   title: 'Новое групповое мероприятие',
-                  content: `В группе создано новое мероприятие "${title}", в котором вы можете принять участие`,
-                  eventId: event.id,
+                  content: `В группе "${groupValues.name}" создано новое мероприятие "${title}"`,
+                  eventId: eventValues.id,
                   groupId
                 })
               )
             );
           }
         }
-        res.status(201).json(event);
+
+        return res.status(201).json(eventValues);
       } catch (error) {
         handleControllerError(res, error, 'Ошибка при создании события');
       }
@@ -145,10 +167,15 @@ export const eventController = {
   getEvents: async (req: Request, res: Response) => {
     try {
       const where: any = {};
-      // if (!req.user) where.isLocal = false; // Только публичные для неавторизованных
+      if (!req.user?.id) {
+        where.isLocal = false; // Только публичные события для неавторизованных
+      }
 
-      const events = await Event.findAll({ where });
-      return res.json(events);
+      const events = await Event.findAll({
+        where
+      });
+
+      return res.json(events.map((event) => event.dataValues));
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при получении событий');
     }
@@ -156,11 +183,15 @@ export const eventController = {
 
   getEvent: async (req: Request, res: Response) => {
     try {
-      const event = await Event.findByPk(req.params.id);
+      const event = await Event.findByPk(req.params.id, {
+        include: [{ model: User, as: 'organizer', attributes: ['id', 'firstName', 'secondName'] }]
+      });
+
       if (!event) {
         return res.status(404).json({ message: 'Мероприятие не найдено' });
       }
-      res.json(event);
+
+      return res.json(event.dataValues);
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при получении события');
     }
@@ -168,45 +199,68 @@ export const eventController = {
 
   updateEvent: async (req: Request, res: Response) => {
     try {
+      if (!req.user?.id) {
+        return res.status(401).json({ message: 'Требуется авторизация' });
+      }
+
       const event = await Event.findByPk(req.params.id);
       if (!event) {
         return res.status(404).json({ message: 'Мероприятие не найдено' });
       }
-      const eventData = event.dataValues;
+
+      const eventValues = event.dataValues;
 
       const isAdmin = await EventAdmin.findOne({
-        where: { eventId: eventData.id, userId: req.user?.id }
+        where: { eventId: eventValues.id, userId: req.user.id }
       });
 
-      if (eventData.organizerId !== req.user?.id && !isAdmin) {
-        return res.status(403).json({ message: 'Нет доступа' });
+      if (eventValues.organizerId !== req.user.id && !isAdmin) {
+        return res.status(403).json({ message: 'Нет доступа для редактирования' });
       }
-      await event.update(req.body);
 
-      // Получаем всех зарегистрированных пользователей
+      // Валидация данных, если они переданы
+      if (req.body.location) {
+        try {
+          const parsedLocation = JSON.parse(req.body.location);
+          if (!parsedLocation?.lat || !parsedLocation?.lng || !parsedLocation?.address) {
+            throw new Error('Локация должна содержать lat, lng и address');
+          }
+        } catch (e) {
+          logger.warn('Invalid location JSON', { location: req.body.location, error: e });
+          throw new Error('Некорректный JSON локации');
+        }
+      }
+
+      const updateData = {
+        ...req.body,
+        categories: req.body.categories ? JSON.parse(req.body.categories) : eventValues.categories,
+        location: req.body.location ? JSON.parse(req.body.location) : eventValues.location
+      };
+
+      await event.update(updateData);
+      const updatedEvent = event.dataValues;
+
+      // Уведомления для зарегистрированных участников
       const registrations = await EventRegistration.findAll({
-        where: { eventId: event.id },
-        attributes: ['userId'],
-        raw: true
+        where: { eventId: eventValues.id, status: 'registered' },
+        attributes: ['userId']
       });
 
-      // Создаем уведомления для всех участников
       if (registrations.length > 0) {
-        const userIds = registrations.map((r) => r.userId);
-
         await Promise.all(
-          userIds.map((userId) =>
+          registrations.map((reg) =>
             createNotification({
-              userId,
+              userId: reg.dataValues.userId,
               type: NotificationType.EVENT_UPDATE,
               title: 'Изменение мероприятия',
-              content: `В мероприятии "${event.title}", на которое вы зарегистрированы, произошли изменения`,
-              eventId: event.id
+              content: `Мероприятие "${eventValues.title}" было обновлено`,
+              eventId: eventValues.id
             })
           )
         );
       }
-      res.json(event);
+
+      return res.json(updatedEvent);
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при обновлении события');
     }
@@ -214,42 +268,46 @@ export const eventController = {
 
   deleteEvent: async (req: Request, res: Response) => {
     try {
+      if (!req.user?.id) {
+        return res.status(401).json({ message: 'Требуется авторизация' });
+      }
+
       const event = await Event.findByPk(req.params.id);
       if (!event) {
         return res.status(404).json({ message: 'Мероприятие не найдено' });
       }
 
-      if (event.organizerId !== req.user?.id) {
+      const eventValues = event.dataValues;
+
+      if (eventValues.organizerId !== req.user.id) {
         return res.status(403).json({ message: 'Только организатор может удалить мероприятие' });
       }
 
-      // Получаем всех зарегистрированных пользователей перед удалением
       const registrations = await EventRegistration.findAll({
-        where: { eventId: event.id },
+        where: { eventId: eventValues.id, status: 'registered' },
         attributes: ['userId']
       });
 
-      const eventTitle = event.dataValues.title;
-      await event.destroy();
+      await Sequelize.transaction(async (t) => {
+        await event.destroy({ transaction: t });
 
-      // Создаем уведомления для всех участников
-      if (registrations.length > 0) {
-        const userIds = registrations.map((r) => r.userId);
+        if (registrations.length > 0) {
+          await Promise.all(
+            registrations.map((reg) =>
+              createNotification({
+                userId: reg.dataValues.userId,
+                type: NotificationType.EVENT_DELETE,
+                title: 'Мероприятие отменено',
+                content: `Мероприятие "${eventValues.title}" было отменено`,
+                eventId: eventValues.id,
+                transaction: t
+              })
+            )
+          );
+        }
+      });
 
-        await Promise.all(
-          userIds.map((userId) =>
-            createNotification({
-              userId,
-              type: NotificationType.EVENT_DELETE,
-              title: 'Мероприятие отменено',
-              content: `Мероприятие "${eventTitle}", на которое вы были зарегистрированы, было отменено`,
-              eventId: event.id
-            })
-          )
-        );
-      }
-
-      res.json({ message: 'Мероприятие удалено' });
+      return res.json({ message: 'Мероприятие удалено' });
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при удалении события');
     }
@@ -257,31 +315,51 @@ export const eventController = {
 
   addAdmin: async (req: Request, res: Response) => {
     try {
+      if (!req.user?.id) {
+        return res.status(401).json({ message: 'Требуется авторизация' });
+      }
+
       const event = await Event.findByPk(req.params.id);
       if (!event) {
         return res.status(404).json({ message: 'Мероприятие не найдено' });
       }
 
-      if (event.organizerId !== req.user?.id) {
+      const eventValues = event.dataValues;
+
+      if (eventValues.organizerId !== req.user.id) {
         return res
           .status(403)
           .json({ message: 'Только организатор может добавлять администраторов' });
       }
 
       const { userId } = req.body;
-      await EventAdmin.create({ eventId: event.id, userId });
+      if (!userId) {
+        return res.status(400).json({ message: 'userId обязателен' });
+      }
 
-      const organizer = await User.findByPk(req.user.id, { raw: true });
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'Пользователь не найден' });
+      }
+
+      const existingAdmin = await EventAdmin.findOne({
+        where: { eventId: eventValues.id, userId }
+      });
+      if (existingAdmin) {
+        return res.status(400).json({ message: 'Пользователь уже является администратором' });
+      }
+
+      await EventAdmin.create({ eventId: eventValues.id, userId });
+
       await createNotification({
         userId,
         type: NotificationType.ADMIN_ASSIGNED,
-        title: 'Новые права администратора',
-        content: `Пользователь ${
-          organizer?.name || 'Аноним'
-        } назначил вас администратором мероприятия "${event.title}"`,
-        eventId: event.id
+        title: 'Назначение администратором',
+        content: `Вы назначены администратором мероприятия "${eventValues.title}"`,
+        eventId: eventValues.id
       });
-      res.status(201).json({ message: 'Администратор добавлен' });
+
+      return res.status(201).json({ message: 'Администратор добавлен' });
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при добавлении администратора');
     }
@@ -289,24 +367,37 @@ export const eventController = {
 
   removeAdmin: async (req: Request, res: Response) => {
     try {
+      if (!req.user?.id) {
+        return res.status(401).json({ message: 'Требуется авторизация' });
+      }
+
       const event = await Event.findByPk(req.params.id);
       if (!event) {
         return res.status(404).json({ message: 'Мероприятие не найдено' });
       }
 
-      if (event.organizerId !== req.user?.id) {
+      const eventValues = event.dataValues;
+
+      if (eventValues.organizerId !== req.user.id) {
         return res
           .status(403)
           .json({ message: 'Только организатор может удалять администраторов' });
       }
 
-      await EventAdmin.destroy({
-        where: {
-          eventId: req.params.id,
-          userId: req.params.userId
-        }
+      const { userId } = req.params;
+      if (!userId) {
+        return res.status(400).json({ message: 'userId обязателен' });
+      }
+
+      const deleted = await EventAdmin.destroy({
+        where: { eventId: eventValues.id, userId }
       });
-      res.json({ message: 'Администратор удален' });
+
+      if (!deleted) {
+        return res.status(404).json({ message: 'Администратор не найден' });
+      }
+
+      return res.json({ message: 'Администратор удален' });
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при удалении администратора');
     }
@@ -320,18 +411,17 @@ export const eventController = {
       }
 
       const admins = await EventAdmin.findAll({
-        where: {
-          eventId: req.params.id
-        },
+        where: { eventId: req.params.id },
         include: [
           {
             model: User,
-            as: 'user'
+            as: 'user',
+            attributes: ['id', 'firstName', 'secondName', 'email']
           }
         ]
       });
 
-      res.json(admins);
+      return res.json(admins.map((admin) => admin.dataValues));
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при получении администраторов');
     }
@@ -339,48 +429,59 @@ export const eventController = {
 
   registerForEvent: async (req: Request, res: Response) => {
     try {
+      if (!req.user?.id) {
+        return res.status(401).json({ message: 'Требуется авторизация' });
+      }
+
       const event = await Event.findByPk(req.params.id);
       if (!event) {
         return res.status(404).json({ message: 'Мероприятие не найдено' });
       }
-      const eventData = event.dataValues;
+
+      const eventValues = event.dataValues;
 
       if (
-        eventData.maxParticipantsCount &&
-        eventData.participantsCount >= eventData.maxParticipantsCount
+        eventValues.maxParticipantsCount &&
+        eventValues.participantsCount >= eventValues.maxParticipantsCount
       ) {
         return res.status(400).json({ message: 'Достигнуто максимальное количество участников' });
       }
 
       const isBanned = await Blacklist.findOne({
-        where: {
-          organizerId: eventData.organizerId,
-          bannedUserId: req.user?.id
-        }
+        where: { organizerId: eventValues.organizerId, bannedUserId: req.user.id }
       });
 
       if (isBanned) {
         return res.status(403).json({ message: 'Вы в черном списке организатора' });
       }
 
-      await EventRegistration.create({
-        eventId: eventData.id,
-        userId: req.user!.id
+      const existingRegistration = await EventRegistration.findOne({
+        where: { eventId: eventValues.id, userId: req.user.id }
+      });
+      if (existingRegistration) {
+        return res.status(400).json({ message: 'Вы уже зарегистрированы на это мероприятие' });
+      }
+
+      await Sequelize.transaction(async (t) => {
+        await EventRegistration.create(
+          { eventId: eventValues.id, userId: req.user!.id },
+          { transaction: t }
+        );
+        await event.increment('participantsCount', { transaction: t });
+
+        await createNotification({
+          userId: eventValues.organizerId,
+          type: NotificationType.EVENT_REGISTRATION,
+          title: 'Новая регистрация',
+          content: `Пользователь ${
+            req.user.firstName || 'Аноним'
+          } зарегистрировался на мероприятие "${eventValues.title}"`,
+          eventId: eventValues.id,
+          transaction: t
+        });
       });
 
-      await event.increment('participantsCount');
-
-      const user = await User.findByPk(req.user!.id, { raw: true });
-      await createNotification({
-        userId: eventData.organizerId,
-        type: NotificationType.EVENT_REGISTRATION,
-        title: 'Новая регистрация на мероприятие',
-        content: `Пользователь ${user?.name || 'Аноним'} зарегистрировался на ваше мероприятие "${
-          eventData.title
-        }"`,
-        eventId: eventData.id
-      });
-      res.status(201).json(event);
+      return res.status(201).json({ message: 'Регистрация успешна', event: eventValues });
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при регистрации на событие');
     }
@@ -388,35 +489,42 @@ export const eventController = {
 
   cancelRegistration: async (req: Request, res: Response) => {
     try {
+      if (!req.user?.id) {
+        return res.status(401).json({ message: 'Требуется авторизация' });
+      }
+
       const registration = await EventRegistration.findOne({
-        where: {
-          eventId: req.params.id,
-          userId: req.params?.user_id
-        }
+        where: { eventId: req.params.id, userId: req.user.id }
       });
 
       if (!registration) {
-        return res.status(404).json({ message: 'Запись не найдена' });
+        return res.status(404).json({ message: 'Регистрация не найдена' });
       }
 
       const event = await Event.findByPk(req.params.id);
-      await registration.destroy();
-
-      if (event) {
-        await event.decrement('participantsCount');
-        const user = await User.findByPk(req.params?.user_id, { raw: true });
-        await createNotification({
-          userId: event.dataValues.organizerId,
-          type: NotificationType.EVENT_CANCEL,
-          title: 'Отмена регистрации на мероприятие',
-          content: `Пользователь ${
-            user?.name || 'Аноним'
-          } отменил регистрацию на ваше мероприятие "${event.dataValues.title}"`,
-          eventId: event.dataValues.id
-        });
+      if (!event) {
+        return res.status(404).json({ message: 'Мероприятие не найдено' });
       }
 
-      res.json({ message: 'Запись отменена' });
+      const eventValues = event.dataValues;
+
+      await Sequelize.transaction(async (t) => {
+        await registration.destroy({ transaction: t });
+        await event.decrement('participantsCount', { transaction: t });
+
+        await createNotification({
+          userId: eventValues.organizerId,
+          type: NotificationType.EVENT_CANCEL,
+          title: 'Отмена регистрации',
+          content: `Пользователь ${
+            req.user.firstName || 'Аноним'
+          } отменил регистрацию на мероприятие "${eventValues.title}"`,
+          eventId: eventValues.id,
+          transaction: t
+        });
+      });
+
+      return res.json({ message: 'Регистрация отменена' });
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при отмене регистрации');
     }
@@ -430,19 +538,17 @@ export const eventController = {
       }
 
       const participants = await EventRegistration.findAll({
-        where: {
-          eventId: req.params.id,
-          status: 'registered'
-        },
+        where: { eventId: req.params.id, status: 'registered' },
         include: [
           {
             model: User,
-            as: 'user'
+            as: 'user',
+            attributes: ['id', 'firstName', 'secondName', 'email']
           }
         ]
       });
 
-      res.json(participants);
+      return res.json(participants.map((p) => p.dataValues));
     } catch (error) {
       handleControllerError(res, error, 'Ошибка при получении участников');
     }
@@ -450,19 +556,37 @@ export const eventController = {
 
   toggleFavourite: async (req: Request, res: Response) => {
     try {
+      if (!req.user?.id) {
+        return res.status(401).json({ message: 'Требуется авторизация' });
+      }
+
       const event = await Event.findByPk(req.params.id);
-      const userId = req.user?.id;
       if (!event) {
         return res.status(404).json({ message: 'Мероприятие не найдено' });
       }
 
-      await event.update({
-        isFavourite: !event.dataValues.isFavourite
+      const eventValues = event.dataValues;
+
+      const user = await User.findByPk(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: 'Пользователь не найден' });
+      }
+
+      const userValues = user.dataValues;
+      const favourites = userValues.favourites || [];
+      const isFavourite = favourites.includes(eventValues.id);
+
+      await user.update({
+        favourites: isFavourite
+          ? favourites.filter((id: string) => id !== eventValues.id)
+          : [...favourites, eventValues.id]
       });
 
-      res.status(201).json(event);
+      return res.json({
+        message: `Мероприятие ${isFavourite ? 'удалено из' : 'добавлено в'} избранное`
+      });
     } catch (error) {
-      handleControllerError(res, error, 'Ошибка при изменении статуса "избранное"');
+      handleControllerError(res, error, 'Ошибка при изменении статуса избранного');
     }
   }
 };

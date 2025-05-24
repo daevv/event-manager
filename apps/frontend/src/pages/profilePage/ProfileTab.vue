@@ -1,5 +1,6 @@
 <template>
-  <div class="general-settings">
+  <div v-if="isLoading" class="loading">Загрузка...</div>
+  <div v-else class="general-settings">
     <h2 class="section-title">Общие настройки</h2>
     <form class="user-form" @submit.prevent="saveUserInfo">
       <!-- Имя -->
@@ -8,11 +9,11 @@
         <div class="editable-field">
           <input
             v-if="editable.firstName"
-            v-model="userInfo.firstName"
+            v-model="formData.firstName"
             class="form-input"
             type="text"
           />
-          <span v-else>{{ userInfo.firstName }}</span>
+          <span v-else>{{ formData?.firstName }}</span>
           <button class="edit-btn" type="button" @click="toggleEditable('firstName')">✏️</button>
         </div>
         <span v-if="errors.firstName" class="error">{{ errors.firstName }}</span>
@@ -24,11 +25,11 @@
         <div class="editable-field">
           <input
             v-if="editable.secondName"
-            v-model="userInfo.secondName"
+            v-model="formData.secondName"
             class="form-input"
             type="text"
           />
-          <span v-else>{{ userInfo.secondName }}</span>
+          <span v-else>{{ formData?.secondName }}</span>
           <button class="edit-btn" type="button" @click="toggleEditable('secondName')">✏️</button>
         </div>
         <span v-if="errors.secondName" class="error">{{ errors.secondName }}</span>
@@ -37,26 +38,28 @@
       <!-- Почта -->
       <div class="form-group">
         <label>Почта:</label>
-        <input v-model="userInfo.email" class="form-input" disabled type="email" />
+        <input :value="formData.email" class="form-input" disabled type="email" />
       </div>
 
       <!-- Интересы -->
       <div class="form-group">
         <label>Интересы:</label>
         <div class="editable-field">
-          <span>{{ userInfo.interests.join(', ') }}</span>
+          <span>{{ formData?.interests.join(', ') || 'Нет интересов' }}</span>
           <button class="edit-btn" type="button" @click="interestModalOpen = true">✏️</button>
         </div>
       </div>
 
-      <button class="save-button" type="submit">Сохранить</button>
-      <button class="change-pass-btn" type="button" @click="changePassword">Изменить пароль</button>
+      <button :disabled="isSaving" class="save-button" type="submit">Сохранить</button>
+      <button :disabled="isSaving" class="change-pass-btn" type="button" @click="changePassword">
+        Изменить пароль
+      </button>
     </form>
 
     <!-- Модалка интересов -->
     <InterestModal
       v-if="interestModalOpen"
-      :interests="userInfo.interests"
+      :interests="formData.interests"
       @close="interestModalOpen = false"
       @update:interests="updateInterests"
     />
@@ -67,7 +70,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useUserStore } from '@/shared/stores/userStore';
 import { useToast } from 'vue-toastification';
 import InterestModal from '@/widgets/modals/InterestModal.vue';
@@ -76,52 +79,116 @@ import ChangePasswordModal from '@/widgets/modals/ChangePasswordModal.vue';
 const toast = useToast();
 const userStore = useUserStore();
 
-const userInfo = computed(() => userStore.user);
+const isLoading = ref(true);
+const isSaving = ref(false);
+const formData = ref<{
+  id: number;
+  email: string;
+  firstName: string;
+  secondName: string;
+  interests: string[];
+} | null>(null);
 const editable = ref({ firstName: false, secondName: false });
 const interestModalOpen = ref(false);
 const passwordModalOpen = ref(false);
 const errors = ref({ firstName: '', secondName: '' });
 
+// Загрузка данных пользователя при монтировании
+onMounted(async () => {
+  try {
+    if (userStore.isAuthenticated()) {
+      const userData = await userStore.fetchUser();
+      formData.value = {
+        id: userData.id,
+        email: userData.email,
+        firstName: userData.firstName,
+        secondName: userData.secondName,
+        interests: userData.interests || []
+      };
+    } else {
+      toast.error('Требуется авторизация');
+    }
+  } catch (error: any) {
+    toast.error(error.message || 'Ошибка загрузки данных пользователя');
+  } finally {
+    isLoading.value = false;
+  }
+});
+
+// Переключение режима редактирования
 const toggleEditable = (field: 'firstName' | 'secondName') => {
+  if (!formData.value) return;
   if (editable.value[field]) {
     validateField(field);
   }
   editable.value[field] = !editable.value[field];
 };
 
+// Валидация полей
 const validateField = (field: 'firstName' | 'secondName') => {
-  const value = userInfo.value[field];
+  if (!formData.value) return;
+  const value = formData.value[field];
   const validCyrillic = /^[А-Яа-яЁё]{2,}$/;
-  if (!validCyrillic.test(value)) {
+  if (!value || !validCyrillic.test(value)) {
     errors.value[field] = 'Только кириллица, минимум 2 буквы';
   } else {
     errors.value[field] = '';
   }
 };
 
-const updateInterests = (interests: string[]) => {
-  userStore.updateUser({ interests });
+// Обновление интересов
+const updateInterests = async (interests: string[]) => {
+  if (!formData.value) return;
+  try {
+    await userStore.updateUser({ interests });
+    formData.value.interests = interests;
+    toast.success('Интересы обновлены');
+    interestModalOpen.value = false;
+  } catch (error: any) {
+    toast.error(error.message || 'Ошибка обновления интересов');
+  }
 };
 
+// Сохранение данных пользователя
 const saveUserInfo = async () => {
+  if (!formData.value) return;
+
   validateField('firstName');
   validateField('secondName');
 
   if (errors.value.firstName || errors.value.secondName) {
-    toast.error('Ошибка валидации');
+    toast.error('Исправьте ошибки валидации');
     return;
   }
-  const { firstName, secondName } = userInfo.value;
-  userStore.updateUser({ firstName, secondName });
-  toast.success('Данные обновлены!');
+
+  isSaving.value = true;
+  try {
+    const { firstName, secondName } = formData.value;
+    await userStore.updateUser({ firstName, secondName });
+    toast.success('Данные обновлены');
+    editable.value.firstName = false;
+    editable.value.secondName = false;
+  } catch (error: any) {
+    toast.error(error.message || 'Ошибка сохранения данных');
+  } finally {
+    isSaving.value = false;
+  }
 };
 
+// Открытие модалки смены пароля
 const changePassword = () => {
   passwordModalOpen.value = true;
 };
 </script>
 
 <style scoped>
+.loading,
+.error-message {
+  text-align: center;
+  padding: 20px;
+  font-size: 18px;
+}
+
 .section-title {
   font-size: 24px;
   font-weight: 700;
@@ -178,11 +245,13 @@ const changePassword = () => {
   margin-top: 10px;
 }
 
-.save-button:hover {
+.save-button:hover,
+.change-pass-btn:hover {
   background: #e65a50;
 }
 
-.save-button:disabled {
+.save-button:disabled,
+.change-pass-btn:disabled {
   background: #999;
   cursor: not-allowed;
 }

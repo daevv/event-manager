@@ -9,6 +9,7 @@ export interface User {
   firstName: string;
   secondName: string;
   interests: string[];
+  favourites: string[];
 }
 
 export const useUserStore = defineStore('userStore', () => {
@@ -53,7 +54,7 @@ export const useUserStore = defineStore('userStore', () => {
     }
 
     try {
-      const response = await axiosInstance.get<User>(`/users/${userId}`);
+      const response = await axiosInstance.get<User>(`/users/user/${userId}`);
       await initUser(response.data);
       return response.data;
     } catch (error: any) {

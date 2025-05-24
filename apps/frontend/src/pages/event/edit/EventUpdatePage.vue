@@ -3,7 +3,7 @@
     <div class="container">
       <div class="header">
         <h1 class="title">Редактирование мероприятия</h1>
-        <router-link :to="`/events/${eventId}`" class="back-link"> ← Назад к событию </router-link>
+        <router-link :to="`/event/${eventId}`" class="back-link"> ← Назад к событию </router-link>
       </div>
 
       <div v-if="loading" class="loading-spinner">

@@ -9,13 +9,13 @@ class User extends Model {
   public secondName!: string;
   public emailVerified!: boolean;
   public interests?: string[];
+  public favourites?: string[];
 
   static associate(models: any) {
     this.hasMany(models.Event, { foreignKey: 'organizerId', as: 'organizedEvents' });
     this.hasMany(models.EventAdmin, { foreignKey: 'userId' });
     this.hasMany(models.EventRegistration, { foreignKey: 'userId' });
     this.hasMany(models.Comment, { foreignKey: 'userId' });
-    this.hasMany(models.GroupMember, { foreignKey: 'userId' });
     this.hasMany(models.Blacklist, { foreignKey: 'organizerId', as: 'blacklistedUsers' });
     this.hasMany(models.Blacklist, { foreignKey: 'bannedUserId', as: 'blockedByUsers' });
     this.hasMany(models.Notification, { foreignKey: 'userId' });
@@ -31,7 +31,8 @@ User.init(
     firstName: { type: DataTypes.STRING, allowNull: false },
     secondName: { type: DataTypes.STRING, allowNull: false },
     emailVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
-    interests: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false, defaultValue: [] }
+    interests: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false, defaultValue: [] },
+    favourites: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false, defaultValue: [] }
   },
   {
     sequelize,

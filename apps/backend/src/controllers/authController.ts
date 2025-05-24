@@ -18,10 +18,11 @@ export const register = async (req: Request, res: Response) => {
     firstName,
     secondName,
     emailVerified: false,
-    interests: []
+    interests: [],
+    favourites: []
   });
 
-  const verificationToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET!, {
+  const verificationToken = jwt.sign({ id: user.dataValues.id }, process.env.JWT_SECRET!, {
     expiresIn: '1h'
   });
   await sendVerificationEmail(email, verificationToken);
