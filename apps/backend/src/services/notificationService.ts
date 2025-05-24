@@ -43,7 +43,7 @@ export const getUserNotifications = async (userId: string) => {
   });
 };
 
-export const markAsRead = async (notificationId: number, userId: string) => {
+export const markAsRead = async (notificationId: string, userId: string) => {
   const notification = await Notification.findOne({
     where: { id: notificationId, userId }
   });

@@ -6,7 +6,6 @@ import User from './user';
 import Event from './event';
 import EventAdmin from './eventAdmin';
 import EventRegistration from './eventRegistration';
-import GroupMember from './groupMember';
 import UserGroup from './userGroup';
 import Comment from './comment';
 import Notification from './notification';
@@ -19,7 +18,6 @@ const models = {
   Event,
   EventAdmin,
   EventRegistration,
-  GroupMember,
   UserGroup,
   Comment,
   Notification,

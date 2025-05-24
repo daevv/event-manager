@@ -25,7 +25,7 @@ export const getUserNotifications = async (req: Request, res: Response) => {
 
 export const markAsRead = async (req: Request, res: Response) => {
   try {
-    const notification = await markAsReadService(parseInt(req.params.id), req.user!.id);
+    const notification = await markAsReadService(req.params.id, req.user!.id);
     res.json(notification);
   } catch (error) {
     handleControllerError(res, error, 'Ошибка при обновлении уведомления');

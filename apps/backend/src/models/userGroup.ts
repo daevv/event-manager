@@ -5,10 +5,11 @@ class UserGroup extends Model {
   public id!: string;
   public name!: string;
   public ownerId!: string;
+  public members!: string[]; // Массив userId участников
 
   static associate(models: any) {
     this.belongsTo(models.User, { foreignKey: 'ownerId', as: 'owner' });
-    this.hasMany(models.GroupMember, { foreignKey: 'groupId' });
+    this.hasMany(models.Event, { foreignKey: 'groupId', as: 'events' });
   }
 }
 
@@ -16,7 +17,12 @@ UserGroup.init(
   {
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
     name: { type: DataTypes.STRING, allowNull: false },
-    ownerId: { type: DataTypes.UUID, allowNull: false }
+    ownerId: { type: DataTypes.UUID, allowNull: false },
+    members: {
+      type: DataTypes.JSONB,
+      allowNull: false,
+      defaultValue: [] // Пустой массив по умолчанию
+    }
   },
   {
     sequelize,
