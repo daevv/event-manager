@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import axiosInstance from '@/shared/utilities/axiosInstance';
 import { disconnectSocket, initializeSocket } from '@/shared/services/socket';
 
@@ -18,7 +18,7 @@ export const useUserStore = defineStore('userStore', () => {
   const token = ref<string | null>(localStorage.getItem('authToken') || null);
 
   // Геттеры
-  const isAuthenticated = () => !!token.value;
+  const isAuthenticated = computed<boolean>(() => !!token.value);
 
   // Действия
   async function setAuthData(userData: User, newToken: string) {

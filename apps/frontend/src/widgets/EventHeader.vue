@@ -49,12 +49,12 @@ export default defineComponent({
 
 <script lang="ts" setup>
 import { RouteNames } from '@/shared/router';
-import { computed } from 'vue';
 import { useUserStore } from '@/shared/stores/userStore';
+import { computed } from 'vue';
 
 const userStore = useUserStore();
 
-const isAuthenticated = true;
+const isAuthenticated = computed<boolean>(() => userStore.isAuthenticated);
 </script>
 
 <style scoped>
@@ -69,7 +69,7 @@ const isAuthenticated = true;
 
 .header-container {
   display: flex;
-  justify-content: space-between;
+  gap: 2rem;
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;

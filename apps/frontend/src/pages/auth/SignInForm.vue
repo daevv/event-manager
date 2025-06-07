@@ -156,8 +156,6 @@ const handleSubmit = async () => {
 .auth-section {
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
   width: 50%;
 }
 
@@ -166,8 +164,6 @@ const handleSubmit = async () => {
   width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
   gap: 3rem;
 }
 
