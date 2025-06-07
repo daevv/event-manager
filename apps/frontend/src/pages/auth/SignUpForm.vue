@@ -3,28 +3,29 @@
     <div class="auth-container">
       <form class="auth-form" @submit.prevent="handleSubmit">
         <h2 class="auth-form__title">Зарегистрироваться ✌️</h2>
-        <p class="auth-form__subtitle">Присоединяйся, тебя уже заждались</p>
 
-        <div class="input-wrapper">
-          <FormInput
-            v-model="formData.secondName"
-            class="auth-form__input"
-            label="Фамилия"
-            placeholder="Иванов"
-            type="text"
-          />
-          <p v-if="errors.secondName" class="error-message">{{ errors.secondName }}</p>
-        </div>
+        <div class="name-wrapper">
+          <div class="input-wrapper">
+            <FormInput
+              v-model="formData.secondName"
+              class="auth-form__input"
+              label="Фамилия"
+              placeholder="Иванов"
+              type="text"
+            />
+            <p v-if="errors.secondName" class="error-message">{{ errors.secondName }}</p>
+          </div>
 
-        <div class="input-wrapper">
-          <FormInput
-            v-model="formData.firstName"
-            class="auth-form__input"
-            label="Имя"
-            placeholder="Иван"
-            type="text"
-          />
-          <p v-if="errors.firstName" class="error-message">{{ errors.firstName }}</p>
+          <div class="input-wrapper">
+            <FormInput
+              v-model="formData.firstName"
+              class="auth-form__input"
+              label="Имя"
+              placeholder="Иван"
+              type="text"
+            />
+            <p v-if="errors.firstName" class="error-message">{{ errors.firstName }}</p>
+          </div>
         </div>
 
         <div class="input-wrapper">
@@ -210,8 +211,6 @@ const handleSubmit = async () => {
 .auth-section {
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
   width: 50%;
 }
 
@@ -219,9 +218,9 @@ const handleSubmit = async () => {
   max-width: 400px;
   width: 100%;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 1.5rem;
+  flex-direction: column;
 }
 
 .auth-form {
@@ -243,6 +242,10 @@ const handleSubmit = async () => {
 
 .auth-form__input {
   width: 100%;
+}
+.name-wrapper {
+  display: flex;
+  gap: 1rem;
 }
 
 .input-wrapper {
