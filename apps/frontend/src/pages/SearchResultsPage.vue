@@ -8,9 +8,10 @@
       <div class="events-container">
         <SortSelector :value="sortBy" @update:value="setSortBy" />
 
-        <div class="events-grid">
+        <div v-if="sortedEvents.length > 0" class="events-grid">
           <EventCard v-for="event in sortedEvents" :key="event.id" :event="event" />
         </div>
+        <ZeroBlock v-else />
       </div>
     </div>
   </main>
@@ -20,7 +21,7 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'SearchResultsPage'
+  name: 'SearchResultsPage',
 });
 </script>
 
@@ -29,6 +30,7 @@ import HeroSearch from '@/widgets/HeroSearch.vue';
 import FiltersSidebar from '@/widgets/FiltersSidebar.vue';
 import EventCard from '@/entities/Event/EventCard.vue';
 import SortSelector from '@/shared/components/SortSelector.vue';
+import ZeroBlock from '@/shared/components/ZeroBlock.vue'; // Импорт нового компонента
 import { computed, onMounted } from 'vue';
 import { type Filters, useEventStore } from '@/shared/stores/eventStore';
 import type { EventType } from '@/shared/models/eventsModel';
@@ -87,6 +89,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   flex: 1;
+  gap: 2rem;
 }
 
 /* Сетка событий */

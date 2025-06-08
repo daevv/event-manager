@@ -10,7 +10,7 @@ import { config, library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
-import Toast, { useToast } from 'vue-toastification';
+import Toast, { POSITION, useToast } from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
 import { initializeSocket, setupNotificationHandler } from '@/shared/services/socket';
 import { useUserStore } from '@/shared/stores/userStore';
@@ -28,16 +28,18 @@ app.use(router);
 
 const authStore = useUserStore();
 const token = authStore.token || localStorage.getItem('authToken');
-initializeSocket(token);
 const toast = useToast();
 
-// Настройка уведомлений
-setupNotificationHandler((notification) => {
-  console.log(notification);
-  toast.success(notification.content, {
-    timeout: 5000,
-    position: 'top-right'
+if (token) {
+  initializeSocket(token);
+  // Настройка уведомлений
+  setupNotificationHandler((notification) => {
+    console.log(notification);
+    toast.success(notification.content, {
+      timeout: 5000,
+      position: POSITION.TOP_RIGHT
+    });
   });
-});
+}
 
 app.component('font-awesome-icon', FontAwesomeIcon).mount('#app');
