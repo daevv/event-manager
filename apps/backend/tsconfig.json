@@ -15,7 +15,7 @@
         "./src/*"
       ]
     },
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "node",
     "target": "ESNext",
     "module": "CommonJS",
     "esModuleInterop": true,

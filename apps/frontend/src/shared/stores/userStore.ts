@@ -47,10 +47,10 @@ export const useUserStore = defineStore('userStore', () => {
     localStorage.setItem('userId', String(userData.id));
   }
 
-  async function fetchUser(id?: string): Promise<User> {
+  async function fetchUser(id?: string): Promise<User | undefined> {
     const userId = id || localStorage.getItem('userId');
     if (!userId) {
-      throw new Error('ID пользователя не найден');
+      return;
     }
 
     try {

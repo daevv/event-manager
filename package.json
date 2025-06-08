@@ -5,6 +5,8 @@
     "build": "turbo build",
     "serve": "turbo serve",
     "dev": "turbo dev --parallel",
+    "predev": "kill -9 $(lsof -t -i:2000,5173) 2>/dev/null || true",  
+    "postdev": "kill -9 $(lsof -t -i:2000,5173) 2>/dev/null || true",
     "test": "turbo test",
     "test:e2e": "turbo test:e2e",
     "lint": "turbo lint",

@@ -136,9 +136,9 @@ const handleSubmit = async () => {
 
       // Successful login: save token and redirect
       const { token, userWithoutSensitiveData: user } = response.data;
-      userStore.initUser(user);
       localStorage.setItem('authToken', token);
       localStorage.setItem('userId', user.id);
+      await userStore.setAuthData(user, token);
       router.push({ name: RouteNames.HOME });
     } catch (error) {
       const errorMessage =
