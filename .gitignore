@@ -38,3 +38,5 @@ yarn-error.log*
 .idea
 
 !apps/**/.gitignore
+
+./apps/backend/.env
