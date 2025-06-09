@@ -135,7 +135,7 @@ const handleSubmit = async () => {
       const response = await axiosInstance.post('auth/login', payload);
 
       // Successful login: save token and redirect
-      const { token, userWithoutSensitiveData: user } = response.data;
+      const { token, user } = response.data;
       localStorage.setItem('authToken', token);
       localStorage.setItem('userId', user.id);
       await userStore.setAuthData(user, token);

@@ -66,7 +66,7 @@ export const login = async (req: Request, res: Response) => {
 
       // и так далее для всех нужных полей
     };
-    res.json({ token, userWithoutSensitiveData });
+    res.json({ token, user: userWithoutSensitiveData });
   } catch (error) {
     logger.error('Login error', { error });
     res.status(500).json({ message: 'Ошибка сервера' });
@@ -90,19 +90,15 @@ export const verifyEmail = async (req: Request, res: Response) => {
 };
 
 export const changePassword = async (req: Request, res: Response) => {
-  const { currentPassword, newPassword, repeatPassword } = req.body;
+  const { currentPassword, newPassword } = req.body;
   const userId = req.user?.id; // предполагаем, что auth middleware добавляет user в req
 
   if (!userId) {
     return res.status(401).json({ message: 'Не авторизован' });
   }
 
-  if (!currentPassword || !newPassword || !repeatPassword) {
+  if (!currentPassword || !newPassword) {
     return res.status(400).json({ message: 'Все поля обязательны' });
-  }
-
-  if (newPassword !== repeatPassword) {
-    return res.status(400).json({ message: 'Новый пароль и его подтверждение не совпадают' });
   }
 
   // Валидация пароля (8+ символов, хотя бы одна цифра, одна заглавная латинская буква)

@@ -49,31 +49,6 @@
       </div>
     </div>
 
-    <!-- Фильтр по дате -->
-    <div class="filter-section">
-      <label class="filter-label">Тип</label>
-      <div class="checkbox-group">
-        <label key="free" class="checkbox-label">
-          <input
-            v-model="selectedCategories"
-            type="checkbox"
-            value="free"
-            @change="updateFilters"
-          />
-          {{ 'Бесплатное' }}
-        </label>
-        <label key="paid" class="checkbox-label">
-          <input
-            v-model="selectedCategories"
-            type="checkbox"
-            value="paid"
-            @change="updateFilters"
-          />
-          {{ 'Платное' }}
-        </label>
-      </div>
-    </div>
-
     <!-- Кнопка сброса фильтров -->
     <button class="reset-button" @click="resetFilters">Сбросить фильтры</button>
   </aside>

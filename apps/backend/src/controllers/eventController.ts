@@ -52,6 +52,7 @@ const validateEventData = (req: Request) => {
 
   if (location) {
     try {
+      console.log(location);
       const parsedLocation = JSON.parse(location);
       if (!parsedLocation?.lat || !parsedLocation?.lng || !parsedLocation?.address) {
         throw new Error('Локация должна содержать lat, lng и address');
@@ -108,10 +109,11 @@ export const eventController = {
           isLocal,
           groupId,
           categories,
-          isFree,
           price,
           maxParticipantsCount,
-          location
+          location,
+          meetingUrl,
+          isOnline
         } = req.body;
 
         const eventData = {
@@ -122,11 +124,12 @@ export const eventController = {
           isLocal: isLocal === 'true',
           groupId: groupId || null,
           categories: categories ? JSON.parse(categories) : [],
-          isFree: isFree === 'true',
           price: price ? Number(price) : null,
           maxParticipantsCount: maxParticipantsCount ? Number(maxParticipantsCount) : null,
           location: location ? JSON.parse(location) : null,
-          imageUrl: req.file ? `/uploads/${req.file.filename}` : null
+          imageUrl: req.file ? `/uploads/${req.file.filename}` : null,
+          isOnline: isOnline === 'true',
+          meetingUrl: meetingUrl
         };
 
         const event = await Event.create(eventData);

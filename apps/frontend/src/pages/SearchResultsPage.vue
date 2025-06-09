@@ -11,7 +11,11 @@
         <div v-if="sortedEvents.length > 0" class="events-grid">
           <EventCard v-for="event in sortedEvents" :key="event.id" :event="event" />
         </div>
-        <ZeroBlock v-else />
+        <ZeroBlock
+          v-else
+          subtitle="Создайте своё мероприятие и будьте первым в списке"
+          title="Мероприятий не найдено"
+        />
       </div>
     </div>
   </main>
@@ -21,7 +25,7 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'SearchResultsPage',
+  name: 'SearchResultsPage'
 });
 </script>
 

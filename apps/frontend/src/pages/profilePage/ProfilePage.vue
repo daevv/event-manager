@@ -17,13 +17,8 @@
 
     <!-- Содержимое вкладок -->
     <div class="tab-content">
-      <!-- Вкладка 1: Общие настройки -->
       <ProfileTab v-if="activeTab === 'general'" />
-
-      <!-- Вкладка 2: Настройки групп пользователей -->
       <UserGroupsTab v-if="activeTab === 'groups'" />
-
-      <!-- Вкладка 3: Настройки мероприятий -->
       <EventSettingsTab v-if="activeTab === 'events'" />
     </div>
   </main>
@@ -33,14 +28,14 @@
 import { ref } from 'vue';
 import UserGroupsTab from '@/pages/profilePage/UserGroupsTab.vue';
 import EventSettingsTab from '@/pages/profilePage/EventSettingsTab.vue';
-import ProfileTab from '@/pages/profilePage/ProfileTab.vue'; // Вкладки
+import ProfileTab from '@/pages/profilePage/ProfileTab.vue';
 
 type Tabs = 'general' | 'groups' | 'events';
 interface ProfileTabInterface {
   id: Tabs;
   name: string;
 }
-// Вкладки
+
 const tabs: ProfileTabInterface[] = [
   { id: 'general', name: 'Общие настройки' },
   { id: 'groups', name: 'Настройки групп' },
@@ -51,119 +46,159 @@ const activeTab = ref<Tabs>('general');
 
 <style scoped>
 .profile-page {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 0 20px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1280px;
+  margin: 2.5rem auto;
+  padding: 2rem;
+  background: linear-gradient(90deg, #7d998b 0%, rgba(52, 77, 81, 0.33) 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
 .page-title {
-  font-size: 32px;
+  font-size: 2.25rem;
   font-weight: 700;
-  color: #333;
-  margin-bottom: 20px;
-  text-align: center;
+  color: #1e293b;
+  margin-bottom: 2rem;
+  text-align: left;
+  letter-spacing: -0.025em;
 }
 
 .tabs {
   display: flex;
-  border-bottom: 2px solid #e0e0e0;
-  margin-bottom: 20px;
+  gap: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .tab-button {
-  padding: 12px 24px;
-  font-size: 16px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
   font-weight: 500;
-  color: #666;
-  background: none;
+  color: #64748b;
+  background: transparent;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
-  transition: color 0.3s ease, border-bottom 0.3s ease;
-}
-
-.tab-button.active {
-  color: #ff6f61;
-  border-bottom: 2px solid #ff6f61;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
 .tab-button:hover {
-  color: #ff6f61;
+  color: #3b82f6;
+  background: #f1f5f9;
+}
+
+.tab-button.active {
+  color: #3b82f6;
+  background: #eff6ff;
+}
+
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -0.5rem;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #3b82f6;
 }
 
 .tab-content {
-  padding: 20px;
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .sub-section-title {
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #333;
-  margin: 20px 0;
+  color: #1e293b;
+  margin: 1.5rem 0;
+  letter-spacing: -0.025em;
 }
 
-/* Вкладка 1: Общие настройки */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
+/* Responsive Design */
 @media (max-width: 767px) {
   .profile-page {
-    margin: 20px auto;
-    padding: 0 10px;
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
   }
 
   .page-title {
-    font-size: 24px;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+    gap: 0.25rem;
   }
 
   .tab-button {
-    padding: 10px 16px;
-    font-size: 14px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 6px;
   }
 
-  .section-title {
-    font-size: 20px;
+  .tab-content {
+    padding: 1rem;
   }
 
   .sub-section-title {
-    font-size: 18px;
+    font-size: 1.125rem;
   }
 
   .form-input,
   .form-textarea {
-    font-size: 14px;
+    font-size: 0.875rem;
   }
 
   .save-button,
   .create-group-button,
   .add-blacklist-button {
-    font-size: 14px;
-    padding: 10px 20px;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
   }
 
   .group-name-input {
-    font-size: 16px;
+    font-size: 0.875rem;
   }
 
   .group-table th,
   .group-table td {
-    padding: 8px;
-    font-size: 14px;
+    padding: 0.5rem;
+    font-size: 0.875rem;
   }
 
   .action-button,
   .remove-button,
   .edit-event-button {
-    font-size: 12px;
-    padding: 6px 12px;
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
   }
 
   .event-title {
-    font-size: 16px;
+    font-size: 1rem;
   }
 
   .event-date {
-    font-size: 12px;
+    font-size: 0.75rem;
   }
 }
 </style>

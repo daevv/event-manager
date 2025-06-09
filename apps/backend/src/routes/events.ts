@@ -6,7 +6,7 @@ const router = Router();
 
 router.post('/', authenticate, eventController.createEvent);
 router.get('/', eventController.getEvents);
-router.get('/:id', authenticate, eventController.getEvent);
+router.get('/:id', eventController.getEvent);
 router.put('/:id', authenticate, eventController.updateEvent);
 router.put('/:id/favourite', authenticate, eventController.toggleFavourite);
 router.delete('/:id', authenticate, eventController.deleteEvent);

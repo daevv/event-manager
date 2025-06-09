@@ -19,7 +19,7 @@ UserGroup.init(
     name: { type: DataTypes.STRING, allowNull: false },
     ownerId: { type: DataTypes.UUID, allowNull: false },
     members: {
-      type: DataTypes.JSONB,
+      type: DataTypes.ARRAY(DataTypes.UUID),
       allowNull: false,
       defaultValue: [] // Пустой массив по умолчанию
     }

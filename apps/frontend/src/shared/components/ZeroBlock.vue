@@ -1,8 +1,8 @@
 <!-- @/shared/components/ZeroBlock.vue -->
 <template>
   <div class="zero-block">
-    <h2>Мероприятий не найдено</h2>
-    <p>Попробуйте изменить фильтры или поисковой запрос.</p>
+    <h2>{{ props.title }}</h2>
+    <p v-if="props.subtitle">{{ props.subtitle }}</p>
   </div>
 </template>
 
@@ -10,8 +10,17 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'ZeroBlock',
+  name: 'ZeroBlock'
 });
+</script>
+
+<script lang="ts" setup>
+type ZeroBlockProps = {
+  title: string;
+  subtitle?: string;
+};
+
+const props = defineProps<ZeroBlockProps>();
 </script>
 
 <style scoped>

@@ -10,7 +10,8 @@ class Event extends Model {
   public location!: { lat: number; lng: number; address: string } | null;
   public categories!: string[];
   public isLocal!: boolean;
-  public isFree!: boolean;
+  public isOnline!: boolean;
+  public mettingUrl!: string;
   public groupId!: string | null;
   public participantsCount!: number;
   public maxParticipantsCount!: number | null;
@@ -45,7 +46,8 @@ Event.init(
       defaultValue: 'PLANNING'
     },
     isLocal: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
-    isFree: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    isOnline: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    meetingUrl: { type: DataTypes.STRING, allowNull: false, defaultValue: '' },
     groupId: { type: DataTypes.UUID, allowNull: true },
     organizerId: { type: DataTypes.UUID, allowNull: false },
     participantsCount: { type: DataTypes.INTEGER, defaultValue: 0 },

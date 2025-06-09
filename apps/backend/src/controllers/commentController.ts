@@ -4,18 +4,18 @@ import Event from '../models/event';
 
 export const createComment = async (req: Request, res: Response) => {
   const { text, rating, eventId } = req.body;
-
+  const parsedRating = Number(rating);
   // Проверяем существование мероприятия
   const event = await Event.findByPk(eventId);
   if (!event) return res.status(404).json({ message: 'Мероприятие не найдено' });
 
   // Валидация рейтинга
-  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+  if (parsedRating < 1 || parsedRating > 5) {
     return res.status(400).json({ message: 'Оценка должна быть целым числом от 1 до 5' });
   }
   const comment = await Comment.create({
     text,
-    rating,
+    rating: parsedRating,
     userId: req.user?.id,
     eventId
   });
@@ -28,7 +28,7 @@ export const updateComment = async (req: Request, res: Response) => {
   const comment = await Comment.findByPk(req.params.id);
 
   if (!comment) return res.status(404).json({ message: 'Комментарий не найден' });
-  if (comment.user_id !== req.user?.id) {
+  if (comment.dataValues.userId !== req.user?.id) {
     return res.status(403).json({ message: 'Вы можете редактировать только свои комментарии' });
   }
 
@@ -45,7 +45,7 @@ export const deleteComment = async (req: Request, res: Response) => {
   const comment = await Comment.findByPk(req.params.id);
 
   if (!comment) return res.status(404).json({ message: 'Комментарий не найден' });
-  if (comment.user_id !== req.user?.id) {
+  if (comment.dataValues.userId !== req.user?.id) {
     return res.status(403).json({ message: 'Вы можете удалять только свои комментарии' });
   }
 

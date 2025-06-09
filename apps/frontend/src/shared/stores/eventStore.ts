@@ -51,7 +51,7 @@ export const useEventStore = defineStore('event', () => {
     // Фильтрация по цене
     if (filters.value.cost !== 'all') {
       result = result.filter((event) =>
-        filters.value.cost === 'free' ? event.isFree : !event.isFree
+        filters.value.cost === 'free' ? event?.price <= 0 : event.price > 0
       );
     }
 

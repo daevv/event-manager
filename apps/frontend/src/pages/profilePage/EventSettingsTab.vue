@@ -95,6 +95,7 @@ const isEventPast = (event: any) => new Date(event.dateTime) < new Date();
         :key="event.id"
         :event="event"
         :isEventPast="isEventPast(event)"
+        :isForAdmin="true"
       />
     </div>
 
@@ -114,6 +115,13 @@ const isEventPast = (event: any) => new Date(event.dateTime) < new Date();
   padding: 24px;
 }
 
+.events-settings:deep(.card-container) {
+  flex-direction: row;
+  height: 250px;
+}
+.events-settings:deep(.card-container .title) {
+  font-size: 18px;
+}
 .section-title {
   font-size: 24px;
   font-weight: bold;
@@ -193,7 +201,6 @@ const isEventPast = (event: any) => new Date(event.dateTime) < new Date();
 
 .events-list {
   display: flex;
-  flex-direction: column;
   gap: 20px;
 }
 

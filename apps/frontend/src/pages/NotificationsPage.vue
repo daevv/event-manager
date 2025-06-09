@@ -2,7 +2,7 @@
   <div class="notifications-page">
     <h1 class="page-title">Уведомления ({{ unreadCount }})</h1>
 
-    <div class="notifications-list">
+    <div v-if="notifications.length" class="notifications-list">
       <div
         v-for="notification in notifications"
         :key="notification.id"
@@ -26,6 +26,7 @@
         </button>
       </div>
     </div>
+    <ZeroBlock v-else title="Уведомлений нет" />
 
     <!-- Модальное окно оценки -->
     <RatingModal
@@ -43,6 +44,7 @@ import RatingModal from '@/widgets/modals/RatingModal.vue';
 import { useToast } from 'vue-toastification';
 import { useNotificationStore } from '@/shared/stores/notificationStore';
 import { storeToRefs } from 'pinia';
+import ZeroBlock from '@/shared/components/ZeroBlock.vue';
 
 const toast = useToast();
 const notificationStore = useNotificationStore();
@@ -114,6 +116,7 @@ const markAsRead = async (notificationId: number) => {
 <style scoped>
 .notifications-page {
   max-width: 800px;
+  min-height: calc(100vh - 420px);
   margin: 0 auto;
   padding: 2rem 1rem;
 }

@@ -44,3 +44,20 @@
 2025-05-21 18:26:59 [error]: Error fetching user data
 2025-05-21 18:27:38 [error]: Error fetching user data
 2025-05-21 18:28:51 [error]: Error fetching user data
+2025-06-09 16:00:24 [error]: sequelize_1.Sequelize.transaction is not a function
+2025-06-09 16:11:59 [error]: column "is_online" does not exist
+2025-06-09 16:12:02 [error]: column "is_online" does not exist
+2025-06-09 16:12:03 [error]: column "is_online" does not exist
+2025-06-09 16:12:26 [error]: column "is_online" does not exist
+2025-06-09 16:12:26 [error]: column "is_online" does not exist
+2025-06-09 16:14:51 [error]: column "is_online" does not exist
+2025-06-09 16:15:59 [error]: column "is_online" does not exist
+2025-06-09 16:16:07 [error]: column "is_online" does not exist
+2025-06-09 16:16:15 [error]: column "is_online" does not exist
+2025-06-09 17:42:58 [error]: Add member error
+2025-06-09 18:06:04 [error]: sequelize_1.Sequelize.transaction is not a function
+2025-06-09 23:15:14 [error]: Некорректный JSON локации
+2025-06-09 23:15:28 [error]: Некорректный JSON локации
+2025-06-09 23:16:19 [error]: Некорректный JSON локации
+2025-06-09 23:17:57 [error]: Некорректный JSON локации
+2025-06-09 23:23:23 [error]: Некорректный JSON категорий

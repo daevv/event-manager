@@ -35,31 +35,36 @@
                 placeholder="Добавьте категории (нажмите 'Enter' чтобы добавить)"
               />
 
-              <div v-if="false" class="event-type-selector">
+              <div class="event-type-selector full-width">
                 <RadioCard
-                  v-model="formData.eventType"
-                  description="Virtual event with remote participants"
+                  v-model="formData.isOnline"
+                  :value="true"
+                  description="Мероприятие на онлайн-платформе"
                   icon="video"
-                  label="Online Event"
-                  value="online"
+                  label="Онлайн мероприятие"
                 />
                 <RadioCard
-                  v-model="formData.eventType"
-                  description="Physical event open to everyone"
+                  v-model="formData.isOnline"
+                  :value="false"
+                  description="Живое общение"
                   icon="location"
-                  label="Public Offline"
-                  value="public"
-                />
-                <RadioCard
-                  v-model="formData.eventType"
-                  description="Private event for specific group members"
-                  icon="group"
-                  label="Local Group Event"
-                  value="local"
+                  label="Публичное оффлайн мероприятие"
                 />
               </div>
 
-              <LocationPicker v-if="true" v-model="formData.location" class="full-width" />
+              <LocationPicker
+                v-if="!formData.isOnline"
+                v-model="formData.location"
+                class="full-width"
+              />
+              <FormField
+                v-else
+                v-model="formData.meetingUrl"
+                class="full-width"
+                label="Ссылка на событие"
+                placeholder="Введите ссылку на событие"
+                required
+              />
             </div>
           </div>
 
@@ -71,6 +76,11 @@
           <!-- Step 3: Event Details -->
           <div v-if="activeStep === 2" class="form-step">
             <div class="form-grid">
+              <FormSwitch
+                v-model="formData.isLocal"
+                description="Приватное мероприятие для участников выбранной группы"
+                label="Локальное мероприятие"
+              />
               <template v-if="formData.isLocal">
                 <FormField
                   v-model="formData.groupId"
@@ -105,7 +115,6 @@
                   placeholder="0 for free event"
                   step="0.01"
                   type="number"
-                  @input="formData.isFree = formData.price === 0"
                 />
               </div>
             </div>
@@ -145,6 +154,7 @@ import RadioCard from '@/shared/components/form/RadioCard.vue';
 import EventPreviewCard from '@/pages/event/create/EventPreviewCard.vue';
 import router, { RouteNames } from '@/shared/router';
 import LocationPicker from '@/features/LocationPicker.vue';
+import FormSwitch from '@/shared/components/form/FormSwitch.vue';
 
 const toast = useToast();
 const groupStore = useGroupStore();
@@ -166,7 +176,8 @@ const formData = ref({
   groupId: null as string | null,
   maxParticipantsCount: null as number | null,
   price: 0,
-  isFree: false,
+  isOnline: false,
+  meetingUrl: '',
   imageFile: null as File | null,
   location: null as {
     lat: number;
@@ -245,8 +256,9 @@ const handleSubmit = async () => {
     formPayload.append('categories', JSON.stringify(formData.value.categories));
     formPayload.append('dateTime', new Date(formData.value.dateTime).toISOString());
     formPayload.append('isLocal', formData.value.isLocal.toString());
+    formPayload.append('isOnline', formData.value.isOnline.toString());
+    formPayload.append('meetingUrl', formData.value.meetingUrl);
     formPayload.append('price', formData.value.price.toString());
-    formPayload.append('isFree', formData.value.isFree.toString());
 
     // Conditional fields
     if (formData.value.isLocal && formData.value.groupId) {
@@ -295,8 +307,9 @@ const resetForm = () => {
     maxParticipantsCount: null,
     location: null,
     price: 0,
-    isFree: false,
-    imageFile: null
+    imageFile: null,
+    isOnline: false,
+    meetingUrl: ''
   };
   activeStep.value = 0;
 };
@@ -375,6 +388,13 @@ const resetForm = () => {
   margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid var(--color-border);
+}
+
+.event-type-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 1rem;
 }
 
 .btn {

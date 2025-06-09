@@ -113,8 +113,9 @@ export const addMember = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Пользователь уже в группе' });
     }
 
-    members.push(user.id);
-    await group.update({ members });
+    const updatedMembers = [...(groupData.members || []), user.id];
+    await group.update({ members: updatedMembers });
+    await group.save();
 
     const owner = await User.findByPk(req.user!.id, { raw: true });
     await createNotification({
@@ -146,7 +147,13 @@ export const removeMember = async (req: Request, res: Response) => {
       return res.status(403).json({ message: 'Только владелец может удалять участников' });
     }
 
-    const { userId } = req.params;
+    const { email } = req.body;
+    const user = await User.findOne({ where: { email }, raw: true });
+    if (!user) {
+      return res.status(404).json({ message: 'Пользователь с таким email не найден' });
+    }
+
+    const { id: userId } = user;
     if (!userId) {
       return res.status(400).json({ message: 'ID пользователя обязателен' });
     }
@@ -173,6 +180,7 @@ export const getMembers = async (req: Request, res: Response) => {
     if (!group) {
       return res.status(404).json({ message: 'Группа не найдена' });
     }
+    console.log(group.dataValues.members);
 
     const members = group.dataValues.members?.length
       ? await User.findAll({

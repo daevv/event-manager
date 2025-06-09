@@ -21,7 +21,7 @@
 
       <div class="content">
         <h3 class="title">{{ event.title }}</h3>
-        <p class="description">{{ event.description }}</p>
+        <p v-if="!props.isForAdmin" class="description">{{ event.description }}</p>
         <div class="meta">
           <div class="meta-item">
             <img
@@ -37,7 +37,7 @@
             />
             <span>{{ getPlaceName() }}</span>
           </div>
-          <div class="meta-item price">
+          <div v-if="!props.isForAdmin" class="meta-item price">
             <span>{{ formatPrice(event.price ?? 0) }}</span>
           </div>
         </div>
@@ -60,9 +60,13 @@ import { PLACES_DICT } from '@/shared/models/placesModel';
 import { RouteNames } from '@/shared/router';
 import { API_BASE_URL } from '@/config';
 
-const props = defineProps<{
+type EventCardProps = {
   event: EventType;
-}>();
+  isForAdmin?: boolean;
+};
+const props = withDefaults(defineProps<EventCardProps>(), {
+  isForAdmin: false
+});
 
 function getImgSrc(): string {
   return props.event.imageUrl
@@ -100,7 +104,7 @@ function onImageError(event: Event) {
 <style scoped>
 .event-card {
   width: 100%;
-  max-width: 300px;
+  max-width: 400px;
   min-width: 150px;
   border-radius: 12px;
   overflow: hidden;
@@ -109,14 +113,15 @@ function onImageError(event: Event) {
 
 .card-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   background: #fff;
 }
 
 .image-container {
   position: relative;
-  width: 100%;
+  width: 50%;
   height: 500px;
+  flex-shrink: 0;
   background: linear-gradient(180deg, #4a4a4a 0%, #2d2d2d 100%);
   color: #fff;
 }
@@ -171,6 +176,7 @@ function onImageError(event: Event) {
 }
 
 .content {
+  width: 50%;
   padding: 20px;
   background: #f5f5f5;
 }
@@ -181,6 +187,9 @@ function onImageError(event: Event) {
   color: #333;
   margin-bottom: 10px;
   text-transform: uppercase;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .description {

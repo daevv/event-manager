@@ -38,7 +38,7 @@
       <!-- Почта -->
       <div class="form-group">
         <label>Почта:</label>
-        <input :value="formData.email" class="form-input" disabled type="email" />
+        <input :value="formData?.email" class="form-input" disabled type="email" />
       </div>
 
       <!-- Интересы -->
@@ -59,7 +59,7 @@
     <!-- Модалка интересов -->
     <InterestModal
       v-if="interestModalOpen"
-      :interests="formData.interests"
+      :interests="formData?.interests"
       @close="interestModalOpen = false"
       @update:interests="updateInterests"
     />
@@ -96,8 +96,9 @@ const errors = ref({ firstName: '', secondName: '' });
 // Загрузка данных пользователя при монтировании
 onMounted(async () => {
   try {
-    if (userStore.isAuthenticated()) {
+    if (userStore.isAuthenticated) {
       const userData = await userStore.fetchUser();
+      if (!userData) return;
       formData.value = {
         id: userData.id,
         email: userData.email,

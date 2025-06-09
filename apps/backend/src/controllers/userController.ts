@@ -68,7 +68,7 @@ export const getOrganizedEvents = async (req: Request, res: Response) => {
 
     const events = await Event.findAll({
       where: { organizerId: userId },
-      attributes: ['id', 'title', 'description', 'dateTime', 'eventStatus'] // Выбираем только нужные поля
+      attributes: ['id', 'title', 'description', 'dateTime', 'eventStatus', 'imageUrl'] // Выбираем только нужные поля
     });
 
     return res.json(events);
