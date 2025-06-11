@@ -39,7 +39,6 @@ yarn-error.log*
 
 !apps/**/.gitignore
 
-./apps/backend/.env
-./apps/backend/uploads
-./apps/backend/error.log
-./apps/backend/combined.log
+/apps/backend/.env
+/apps/backend/uploads
+/apps/backend/*.log
