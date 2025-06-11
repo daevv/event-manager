@@ -30,12 +30,11 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { RouteNames } from '@/shared/router';
+import { useUserStore } from '@/shared/stores/userStore';
 
-// Предполагаем, что текущий пользователь хранится в глобальном состоянии (например, Pinia или Vuex)
-// Для примера используем заглушку
-const currentUserId = 0; // ID текущего пользователя (0 — root)
+const userStore = useUserStore()
 
-const isRootUser = computed(() => currentUserId === 0);
+const isRootUser = computed(() => userStore.isAdmin);
 </script>
 
 <style scoped>

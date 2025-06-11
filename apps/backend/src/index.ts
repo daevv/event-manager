@@ -15,6 +15,7 @@ import groupRoutes from './routes/groups';
 import commentRoutes from './routes/comments';
 import logsRoutes from './routes/logs';
 import notificationsRoutes from './routes/notifications';
+import adminRoutes from './routes/admin';
 
 // Расширяем интерфейс Request для типизации userId
 interface AuthenticatedRequest extends Request {
@@ -80,6 +81,7 @@ function setupRoutes() {
   app.use('/comments', commentRoutes);
   app.use('/logs', logsRoutes);
   app.use('/notifications', notificationsRoutes);
+  app.use('/admin', adminRoutes);
 }
 
 // Инициализация Socket.IO

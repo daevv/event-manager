@@ -61,3 +61,11 @@
 2025-06-09 23:16:19 [error]: Некорректный JSON локации
 2025-06-09 23:17:57 [error]: Некорректный JSON локации
 2025-06-09 23:23:23 [error]: Некорректный JSON категорий
+2025-06-09 23:39:11 [error]: column "is_online" does not exist
+2025-06-09 23:43:19 [error]: column "is_online" does not exist
+2025-06-09 23:52:48 [error]: sequelize_1.Sequelize.transaction is not a function
+2025-06-09 23:53:53 [error]: User is associated to EventAdmin using an alias. You've included an alias (user), but it does not match the alias(es) defined in your association (User).
+2025-06-10 01:11:17 [error]: Login error
+2025-06-10 01:11:28 [error]: Login error
+2025-06-10 01:11:47 [error]: Login error
+2025-06-10 22:03:13 [error]: column Event.status does not exist

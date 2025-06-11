@@ -10,6 +10,7 @@ export interface User {
   secondName: string;
   interests: string[];
   favourites: string[];
+  isAdmin?: boolean 
 }
 
 export const useUserStore = defineStore('userStore', () => {
@@ -19,6 +20,7 @@ export const useUserStore = defineStore('userStore', () => {
 
   // Геттеры
   const isAuthenticated = computed<boolean>(() => !!token.value);
+  const isAdmin = computed<boolean>(() => !!user.value?.isAdmin);
 
   // Действия
   async function setAuthData(userData: User, newToken: string) {
@@ -120,6 +122,7 @@ export const useUserStore = defineStore('userStore', () => {
     updateUser,
     updatePassword,
     login,
-    logout
+    logout,
+    isAdmin
   };
 });

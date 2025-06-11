@@ -56,7 +56,7 @@ export const login = async (req: Request, res: Response) => {
     }
 
     // Генерация токена
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!, { expiresIn: '24h' });
+    const token = jwt.sign({ id: user.id, isAdmin: user.isAdmin, isBlocked: user.isBlocked }, process.env.JWT_SECRET!, { expiresIn: '24h' });
     const userWithoutSensitiveData = {
       id: user.id,
       email: user.email,

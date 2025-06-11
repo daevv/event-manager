@@ -10,6 +10,8 @@ class User extends Model {
   public emailVerified!: boolean;
   public interests?: string[];
   public favourites?: string[];
+  public isAdmin?: boolean;
+  public isBlocked?: boolean;
 
   static associate(models: any) {
     this.hasMany(models.Event, { foreignKey: 'organizerId', as: 'organizedEvents' });
@@ -32,7 +34,9 @@ User.init(
     secondName: { type: DataTypes.STRING, allowNull: false },
     emailVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
     interests: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false, defaultValue: [] },
-    favourites: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false, defaultValue: [] }
+    favourites: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false, defaultValue: [] },
+    isAdmin: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    isBlocked: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false }
   },
   {
     sequelize,

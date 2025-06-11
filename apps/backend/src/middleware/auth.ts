@@ -1,6 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
+type UserPayload = {
+  id: string,
+  isBlocked: boolean,
+  isAdmin: boolean
+}
+
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.header('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
@@ -13,7 +19,11 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
   try {
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error('JWT_SECRET не определен');
-    req.user = jwt.verify(token, secret) as { id: string };
+    const decoded = jwt.verify(token, secret) as UserPayload;
+    if (decoded.isBlocked) {
+      return res.status(401).json({ message: 'Пользователь заблокирован' });
+    }
+    req.user = decoded;
     next();
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {

@@ -1,7 +1,17 @@
 <!-- src/pages/ProfilePage.vue -->
 <template>
   <main class="profile-page">
-    <h1 class="page-title">Профиль пользователя</h1>
+    <div class="title-container">
+      <h1 class="page-title">Профиль пользователя</h1>
+      <router-link
+        v-if="true"
+        :to="{ name: RouteNames.ADMIN }"
+        class="admin-button"
+      >
+        Админ панель
+      </router-link>
+    </div>
+    
 
     <!-- Вкладки -->
     <div class="tabs">
@@ -25,10 +35,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import UserGroupsTab from '@/pages/profilePage/UserGroupsTab.vue';
 import EventSettingsTab from '@/pages/profilePage/EventSettingsTab.vue';
 import ProfileTab from '@/pages/profilePage/ProfileTab.vue';
+import { RouteNames } from '@/shared/router';
+import { useUserStore } from '@/shared/stores/userStore';
 
 type Tabs = 'general' | 'groups' | 'events';
 interface ProfileTabInterface {
@@ -42,6 +54,10 @@ const tabs: ProfileTabInterface[] = [
   { id: 'events', name: 'Настройки мероприятий' }
 ];
 const activeTab = ref<Tabs>('general');
+const userStore = useUserStore();
+
+const isAdmin = computed<boolean>(() => userStore.isAdmin)
+
 </script>
 
 <style scoped>
@@ -55,13 +71,42 @@ const activeTab = ref<Tabs>('general');
   transition: all 0.3s ease;
 }
 
+.title-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
 .page-title {
   font-size: 2.25rem;
   font-weight: 700;
   color: #1e293b;
-  margin-bottom: 2rem;
   text-align: left;
   letter-spacing: -0.025em;
+}
+
+.admin-button {
+  max-width: 150px;
+  padding: 6px;
+  background: #ff6f61; /* Яркий оранжевый для выделения */
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 6px;
+  transition:
+    background 0.3s ease,
+    transform 0.2s ease;
+}
+
+.admin-button:hover {
+  background: #e65a50;
+  transform: scale(1.05); /* Лёгкое увеличение при наведении */
+}
+
+.admin-button:active {
+  transform: scale(0.95); /* Эффект нажатия */
 }
 
 .tabs {
@@ -142,7 +187,6 @@ const activeTab = ref<Tabs>('general');
 
   .page-title {
     font-size: 1.5rem;
-    margin-bottom: 1.5rem;
   }
 
   .tabs {

@@ -7,8 +7,8 @@ class EventAdmin extends Model {
   public userId!: string;
 
   static associate(models: any) {
-    this.belongsTo(models.Event, { foreignKey: 'eventId' });
-    this.belongsTo(models.User, { foreignKey: 'userId' });
+    this.belongsTo(models.Event, { foreignKey: 'eventId', as: 'administratedEvents' });
+    this.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
   }
 }
 

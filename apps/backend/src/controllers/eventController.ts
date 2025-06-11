@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import path from 'path';
 import multer from 'multer';
-import { Sequelize } from 'sequelize';
+import { sequelize } from '@/config/db';
 import Event from '../models/event';
 import EventAdmin from '../models/eventAdmin';
 import EventRegistration from '../models/eventRegistration';
@@ -11,6 +11,7 @@ import UserGroup from '@/models/userGroup';
 import { logger } from '@/services/logger';
 import { createNotification } from '@/services/notificationService';
 import { NotificationType } from '@/models/notification';
+import { Op } from 'sequelize';
 
 // Конфигурация Multer для загрузки файлов
 const configureMulter = () => {
@@ -169,7 +170,11 @@ export const eventController = {
 
   getEvents: async (req: Request, res: Response) => {
     try {
-      const where: any = {};
+      const where: any = {
+        eventStatus: {
+          [Op.not]: 'BANNED' // Исключаем события со статусом BANNED
+        }
+      };
       if (!req.user?.id) {
         where.isLocal = false; // Только публичные события для неавторизованных
       }
@@ -291,7 +296,7 @@ export const eventController = {
         attributes: ['userId']
       });
 
-      await Sequelize.transaction(async (t) => {
+      await sequelize.transaction(async (t) => {
         await event.destroy({ transaction: t });
 
         if (registrations.length > 0) {
@@ -335,27 +340,27 @@ export const eventController = {
           .json({ message: 'Только организатор может добавлять администраторов' });
       }
 
-      const { userId } = req.body;
-      if (!userId) {
-        return res.status(400).json({ message: 'userId обязателен' });
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ message: 'email обязателен' });
       }
 
-      const user = await User.findByPk(userId);
+      const user = await User.findOne({ where: { email }, raw: true });
       if (!user) {
         return res.status(404).json({ message: 'Пользователь не найден' });
       }
 
       const existingAdmin = await EventAdmin.findOne({
-        where: { eventId: eventValues.id, userId }
+        where: { eventId: eventValues.id, userId: user.id }
       });
       if (existingAdmin) {
         return res.status(400).json({ message: 'Пользователь уже является администратором' });
       }
 
-      await EventAdmin.create({ eventId: eventValues.id, userId });
+      await EventAdmin.create({ eventId: eventValues.id, userId: user.id });
 
       await createNotification({
-        userId,
+        userId: user.id,
         type: NotificationType.ADMIN_ASSIGNED,
         title: 'Назначение администратором',
         content: `Вы назначены администратором мероприятия "${eventValues.title}"`,
@@ -387,13 +392,16 @@ export const eventController = {
           .json({ message: 'Только организатор может удалять администраторов' });
       }
 
-      const { userId } = req.params;
-      if (!userId) {
-        return res.status(400).json({ message: 'userId обязателен' });
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ message: 'email обязателен' });
       }
-
+      const user = await User.findOne({ where: { email }, raw: true });
+      if (!user) {
+        return res.status(400).json({ message: 'Пользователь с таким email не зарегистрирован' });
+      }
       const deleted = await EventAdmin.destroy({
-        where: { eventId: eventValues.id, userId }
+        where: { eventId: eventValues.id, userId: user.id }
       });
 
       if (!deleted) {
@@ -465,7 +473,7 @@ export const eventController = {
         return res.status(400).json({ message: 'Вы уже зарегистрированы на это мероприятие' });
       }
 
-      await Sequelize.transaction(async (t) => {
+      await sequelize.transaction(async (t) => {
         await EventRegistration.create(
           { eventId: eventValues.id, userId: req.user!.id },
           { transaction: t }
@@ -495,9 +503,18 @@ export const eventController = {
       if (!req.user?.id) {
         return res.status(401).json({ message: 'Требуется авторизация' });
       }
+       const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ message: 'email обязателен' });
+      }
+
+      const user = await User.findOne({ where: { email }, raw: true });
+      if (!user) {
+        return res.status(404).json({ message: 'Пользователь не найден' });
+      }
 
       const registration = await EventRegistration.findOne({
-        where: { eventId: req.params.id, userId: req.user.id }
+        where: { eventId: req.params.id, userId: user.id }
       });
 
       if (!registration) {
@@ -511,7 +528,7 @@ export const eventController = {
 
       const eventValues = event.dataValues;
 
-      await Sequelize.transaction(async (t) => {
+      await sequelize.transaction(async (t) => {
         await registration.destroy({ transaction: t });
         await event.decrement('participantsCount', { transaction: t });
 

@@ -41,7 +41,7 @@ Event.init(
       defaultValue: null
     },
     eventStatus: {
-      type: DataTypes.ENUM('PLANNING', 'ONGOING', 'CANCELLED', 'COMPLETED'),
+      type: DataTypes.ENUM('PLANNING', 'ONGOING', 'CANCELLED', 'COMPLETED', 'BANNED'),
       allowNull: false,
       defaultValue: 'PLANNING'
     },
