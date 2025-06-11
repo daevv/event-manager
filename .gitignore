@@ -28,6 +28,7 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+*.env
 
 # turbo
 .turbo
@@ -40,5 +41,5 @@ yarn-error.log*
 !apps/**/.gitignore
 
 /apps/backend/.env
-/apps/backend/uploads
+/apps/backend/uploads/
 /apps/backend/*.log
