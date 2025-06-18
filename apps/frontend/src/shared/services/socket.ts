@@ -1,6 +1,5 @@
 import { io, Socket } from 'socket.io-client';
 
-// Расширяем тип Socket для типизации
 interface Notification {
   id?: string;
   type: string;
@@ -16,7 +15,6 @@ export function initializeSocket(token: string | null): Socket {
   if (socket) {
     return socket; // Возвращаем существующий сокет, если он уже инициализирован
   }
-
   // Инициализируем новый сокет
   socket = io('http://localhost:2000', {
     auth: {
@@ -26,24 +24,16 @@ export function initializeSocket(token: string | null): Socket {
       userId: token ? getUserIdFromToken(token) : undefined // Опционально передаём userId
     }
   });
-
   // Логирование подключения
   socket.on('connect', () => {
     console.log('Подключено к Socket.IO', socket?.id);
   });
-
   socket.on('connect_error', (error) => {
     console.error('Ошибка подключения к Socket.IO:', error.message);
   });
-
   socket.on('disconnect', () => {
     console.log('Отключено от Socket.IO');
   });
-
-  return socket;
-}
-
-export function getSocket(): Socket | null {
   return socket;
 }
 
@@ -53,6 +43,10 @@ export function disconnectSocket(): void {
     socket = null;
     console.log('Сокет отключён');
   }
+}
+
+export function getSocket(): Socket | null {
+  return socket;
 }
 
 // Вспомогательная функция для извлечения userId из токена (если нужно)
@@ -76,7 +70,6 @@ export function setupNotificationHandler(
   }
 
   socket.on('new_notification', (notification: Notification) => {
-    console.log('Получено уведомление:', notification);
     onNotification(notification);
   });
 }

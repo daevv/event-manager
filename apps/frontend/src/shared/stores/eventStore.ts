@@ -193,11 +193,11 @@ export const useEventStore = defineStore('event', () => {
     }
   };
 
-  const register = async (id: string) => {
+  const register = async (id: string, email: string) => {
     loading.value = true;
 
     try {
-      const response = await axiosInstance.post(`events/${id}/register`);
+      const response = await axiosInstance.post(`events/${id}/register`, { email });
       const event = normalizeEvent(response.data);
 
       registeredEvents.value.push(event);
@@ -210,14 +210,12 @@ export const useEventStore = defineStore('event', () => {
     }
   };
 
-  const unregister = async (eventId: string, userId?: string) => {
+  const unregister = async (eventId: string, email: string) => {
     loading.value = true;
 
     try {
-      const currentUserId = localStorage.getItem('userId');
-      await axiosInstance.delete(`events/${eventId}/register/${userId ?? currentUserId}`);
-      !userId &&
-        (registeredEvents.value = registeredEvents.value.filter((event) => event.id !== eventId));
+      await axiosInstance.post(`events/${eventId}/unregister`, { email });
+      registeredEvents.value = registeredEvents.value.filter((event) => event.id !== eventId);
     } catch (err) {
       handleError(err, 'Ошибка при отмене регистрации');
       throw err;
@@ -285,7 +283,7 @@ export const useEventStore = defineStore('event', () => {
       await fetch(`http://localhost:2000/events/${id}`, {
         method: 'PUT',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         },
         body: formData
       });

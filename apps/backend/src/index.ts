@@ -13,7 +13,6 @@ import eventRoutes from './routes/events';
 import blacklistRoutes from './routes/blacklists';
 import groupRoutes from './routes/groups';
 import commentRoutes from './routes/comments';
-import logsRoutes from './routes/logs';
 import notificationsRoutes from './routes/notifications';
 import adminRoutes from './routes/admin';
 
@@ -79,7 +78,6 @@ function setupRoutes() {
   app.use('/blacklists', blacklistRoutes);
   app.use('/groups', groupRoutes);
   app.use('/comments', commentRoutes);
-  app.use('/logs', logsRoutes);
   app.use('/notifications', notificationsRoutes);
   app.use('/admin', adminRoutes);
 }

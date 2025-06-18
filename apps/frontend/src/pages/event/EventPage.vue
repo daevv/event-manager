@@ -118,7 +118,7 @@ const event = computed(() => {
 
 const organizer = ref<User | null>(null);
 const organizerData = computed(() => ({
-  name: organizer.value?.firstName + ' ' + organizer.value?.secondName ?? 'John Dow',
+  name: organizer.value?.firstName + ' ' + organizer.value?.secondName,
   email: organizer.value?.email ?? 'testMail@mail.ru'
 }));
 
@@ -162,8 +162,8 @@ const fetchEvent = async () => {
 
 async function handleRegistration(): Promise<void> {
   isUserRegistered.value
-    ? await eventStore.unregister(eventId.value)
-    : await eventStore.register(eventId.value);
+    ? await eventStore.unregister(eventId.value, userStore.user?.email ?? '')
+    : await eventStore.register(eventId.value, userStore.user?.email ?? '');
 }
 
 async function handleUpdate(): Promise<void> {

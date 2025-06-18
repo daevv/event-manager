@@ -503,7 +503,7 @@ export const eventController = {
       if (!req.user?.id) {
         return res.status(401).json({ message: 'Требуется авторизация' });
       }
-       const { email } = req.body;
+      const { email } = req.body;
       if (!email) {
         return res.status(400).json({ message: 'email обязателен' });
       }

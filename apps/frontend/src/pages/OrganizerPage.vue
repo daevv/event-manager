@@ -74,7 +74,6 @@ const fetchData = async () => {
     user.value = await userStore.fetchUser(userId);
 
     organizedEvents.value = await eventStore.fetchOrganizedEvents(userId + '');
-    console.log(organizedEvents);
   } catch (err) {
     error.value = err.message || 'Произошла ошибка при загрузке данных';
   } finally {

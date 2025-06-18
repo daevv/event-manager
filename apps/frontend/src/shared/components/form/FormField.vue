@@ -119,7 +119,7 @@ const handleInput = () => {
 
 <style scoped>
 .form-field {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .form-field.full-width {

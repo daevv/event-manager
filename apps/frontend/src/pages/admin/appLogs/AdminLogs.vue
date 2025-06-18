@@ -220,7 +220,7 @@ const fetchLogs = async () => {
       sortOrder: sort.value.order
     };
 
-    const response = await axiosInstance.get('/logs', { params });
+    const response = await axiosInstance.get('/admin/logs', { params });
 
     logs.value = response.data.data;
     pagination.value = {

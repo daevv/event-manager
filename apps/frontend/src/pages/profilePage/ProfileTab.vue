@@ -51,9 +51,10 @@
       </div>
 
       <button :disabled="isSaving" class="save-button" type="submit">Сохранить</button>
-      <button :disabled="isSaving" class="change-pass-btn" type="button" @click="changePassword">
+      <button :disabled="isSaving" class="button" type="button" @click="changePassword">
         Изменить пароль
       </button>
+      <button class="button" type="button" @click="logout">Выйти</button>
     </form>
 
     <!-- Модалка интересов -->
@@ -75,9 +76,12 @@ import { useUserStore } from '@/shared/stores/userStore';
 import { useToast } from 'vue-toastification';
 import InterestModal from '@/widgets/modals/InterestModal.vue';
 import ChangePasswordModal from '@/widgets/modals/ChangePasswordModal.vue';
+import { RouteNames } from '@/shared/router';
+import { useRouter } from 'vue-router';
 
 const toast = useToast();
 const userStore = useUserStore();
+const router = useRouter();
 
 const isLoading = ref(true);
 const isSaving = ref(false);
@@ -180,6 +184,11 @@ const saveUserInfo = async () => {
 const changePassword = () => {
   passwordModalOpen.value = true;
 };
+
+const logout = async () => {
+  await userStore.logout();
+  router.push({ name: RouteNames.HOME });
+};
 </script>
 
 <style scoped>
@@ -231,7 +240,7 @@ const changePassword = () => {
 }
 
 .save-button,
-.change-pass-btn {
+.button {
   padding: 12px 24px;
   background: #ff6f61;
   color: white;
@@ -241,18 +250,18 @@ const changePassword = () => {
   cursor: pointer;
 }
 
-.change-pass-btn {
+.button {
   background: #555;
   margin-top: 10px;
 }
 
 .save-button:hover,
-.change-pass-btn:hover {
+.button:hover {
   background: #e65a50;
 }
 
 .save-button:disabled,
-.change-pass-btn:disabled {
+.button:disabled {
   background: #999;
   cursor: not-allowed;
 }

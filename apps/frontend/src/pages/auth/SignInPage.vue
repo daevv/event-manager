@@ -75,7 +75,7 @@ function handleSwitch(withConfirmEmailModal = false): void {
 .auth-page__bg {
   background: url('../../assets/images/auth_bg.jpeg') no-repeat center;
   background-size: cover;
-  height: 100%;
+  height: 70%;
   border-radius: 24px;
   width: 50%;
   transition: opacity 0.3s ease;
@@ -150,9 +150,7 @@ function handleSwitch(withConfirmEmailModal = false): void {
 /* Анимация переключения форм */
 .container :deep(.sign-in-form),
 .container :deep(.sign-up-form) {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .container :deep(.sign-in-form.fade-out),

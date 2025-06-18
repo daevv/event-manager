@@ -81,7 +81,7 @@ const unregisterParticipant = async (participant: User) => {
   unregisteringId.value = participant.id;
 
   try {
-    await eventStore.unregister(props.eventId.toString(), participant.id.toString());
+    await eventStore.unregister(props.eventId.toString(), participant.email);
     await loadParticipants();
   } catch (err) {
     console.error('Ошибка при отмене регистрации:', err);

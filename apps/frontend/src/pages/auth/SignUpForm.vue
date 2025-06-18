@@ -164,7 +164,7 @@ const handleSubmit = async () => {
     isValid = false;
   } else if (!validatePassword(formData.value.password)) {
     errors.value.password =
-      'Пароль должен быть минимум 8 символов, содержать цифру и заглавную букву';
+      'Пароль должен быть минимум 8 символов, содержать цифру, заглавную букву и хотя бы 1 спецсимвол';
     isValid = false;
   }
 

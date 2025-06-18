@@ -20,7 +20,7 @@
       </div>
 
       <div class="content">
-        <h3 class="title">{{ event.title }}</h3>
+        <div class="title">{{ event.title }}</div>
         <p v-if="!props.isForAdmin" class="description">{{ event.description }}</p>
         <div class="meta">
           <div class="meta-item">
@@ -139,10 +139,9 @@ function onImageError(event: Event) {
 .date-time {
   position: absolute;
   top: 20px;
-  right: 20px;
+  left: 20px;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
   gap: 4px;
 }
 
@@ -185,11 +184,11 @@ function onImageError(event: Event) {
   font-size: 24px;
   font-weight: 700;
   color: #333;
+  height: 30%;
   margin-bottom: 10px;
   text-transform: uppercase;
   text-overflow: ellipsis;
   overflow: hidden;
-  white-space: nowrap;
 }
 
 .description {

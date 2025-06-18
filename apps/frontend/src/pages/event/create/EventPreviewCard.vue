@@ -2,8 +2,13 @@
   <div class="event-preview">
     <div class="preview-header">
       <h2 class="preview-title">{{ event.title }}</h2>
-      <div :class="event.isLocal ? 'local' : 'online'" class="preview-badge">
-        {{ event.isLocal ? 'Local Event' : 'Online Event' }}
+      <div class="badges">
+        <div class="local preview-badge" v-if="event.isLocal">
+          {{ 'Локальное мероприятие' }}
+        </div>
+        <div class="online preview-badge" v-if="event.meetingUrl">
+          {{ 'Онлайн мероприятие' }}
+        </div>
       </div>
     </div>
 
@@ -33,7 +38,7 @@
         </div>
       </div>
 
-      <div v-if="event.isLocal && event.l" class="detail-row">
+      <div v-if="event.isLocal && event.location" class="detail-row">
         <div class="detail-icon">
           <svg
             fill="none"
@@ -89,8 +94,8 @@
         <div class="detail-text">
           {{
             event.maxParticipantsCount
-              ? `Up to ${event.maxParticipantsCount} participants`
-              : 'Unlimited participants'
+              ? `До ${event.maxParticipantsCount} участников`
+              : 'Неограниченное кол-во участников'
           }}
         </div>
       </div>
@@ -119,18 +124,18 @@
           </svg>
         </div>
         <div class="detail-text">
-          {{ event.isFree ? 'Free' : `$${event.price}` }}
+          {{ event.isFree ? 'Бесплатное' : `₽${event.price}` }}
         </div>
       </div>
     </div>
 
     <div class="preview-description">
-      <h3 class="section-title">Description</h3>
+      <h3 class="section-title">Описание</h3>
       <p class="description-text">{{ event.description }}</p>
     </div>
 
     <div v-if="event.categories.length > 0" class="preview-categories">
-      <h3 class="section-title">Categories</h3>
+      <h3 class="section-title">Категории</h3>
       <div class="categories-list">
         <span v-for="(category, index) in event.categories" :key="index" class="category-tag">
           {{ category }}
@@ -151,6 +156,7 @@ defineProps({
       isLocal: boolean;
       groupId: string | null;
       maxParticipantsCount: number | null;
+      meetingUrl: string;
       price: number;
       location: {
         lat: number;
@@ -173,7 +179,7 @@ const formatDateTime = (dateTime: string) => {
     hour: '2-digit',
     minute: '2-digit'
   };
-  return new Date(dateTime).toLocaleDateString('en-US', options);
+  return new Date(dateTime).toLocaleDateString('ru', options);
 };
 
 const getPlaceName = () => {
@@ -190,6 +196,9 @@ const getPlaceName = () => {
 }
 
 .preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 1.5rem;
   border-bottom: 1px solid var(--color-border-light);
   position: relative;
@@ -202,10 +211,13 @@ const getPlaceName = () => {
   color: var(--color-heading);
 }
 
+.badges {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .preview-badge {
-  position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: 0.75rem;

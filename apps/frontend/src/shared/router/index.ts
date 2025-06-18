@@ -32,7 +32,7 @@ export enum RouteNames {
 // Функция проверки авторизации
 const isAuthenticated = (): boolean => {
   // Замените на реальную логику проверки авторизации
-  return localStorage.getItem('authToken') !== null;
+  return localStorage.getItem('token') !== null;
 };
 
 // Навигационный guard с типизацией

@@ -70,7 +70,7 @@
 
           <!-- Step 2: Event Image -->
           <div v-if="activeStep === 1" class="form-step">
-            <ImageUploader v-model="formData.imageFile" label="Event Cover Image" required />
+            <ImageUploader v-model="formData.imageFile" label="Обложка события" required />
           </div>
 
           <!-- Step 3: Event Details -->
@@ -86,7 +86,7 @@
                   v-model="formData.groupId"
                   :options="groupOptions"
                   class="full-width"
-                  label="Select Group"
+                  label="Выберите группу"
                   placeholder="Choose a group (optional)"
                   type="select"
                 />
@@ -95,22 +95,22 @@
               <div class="date-time-grid">
                 <FormField
                   v-model="formData.dateTime"
-                  label="Date & Time"
+                  label="Дата и время"
                   required
                   type="datetime-local"
                 />
 
                 <FormField
                   v-model="formData.maxParticipantsCount"
-                  label="Max Participants"
+                  label="Макс. число участников"
                   min="1"
-                  placeholder="Leave empty for unlimited"
+                  placeholder="Не ограниченно"
                   type="number"
                 />
 
                 <FormField
                   v-model="formData.price"
-                  label="Price"
+                  label="Стоимость"
                   min="0"
                   placeholder="0 for free event"
                   step="0.01"
@@ -128,11 +128,11 @@
           <!-- Navigation Buttons -->
           <div class="form-actions">
             <button v-if="activeStep > 0" class="btn btn-outline" type="button" @click="prevStep">
-              Back
+              Назад
             </button>
 
             <button class="btn btn-primary" type="button" @click="nextStep">
-              {{ activeStep === steps.length - 1 ? 'Create Event' : 'Continue' }}
+              {{ activeStep === steps.length - 1 ? 'Создать событие' : 'Продолжить' }}
             </button>
           </div>
         </form>
@@ -274,10 +274,10 @@ const handleSubmit = async () => {
       formPayload.append('image', formData.value.imageFile);
     }
 
-    const response = await fetch('http://localhost:2000/events', {
+    const response = await fetch('http://localhost:2000/events/create', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('authToken')}`
+        Authorization: `Bearer ${localStorage.getItem('token')}`
       },
       body: formPayload
     });
@@ -339,7 +339,6 @@ const resetForm = () => {
 }
 
 .form-header {
-  margin-bottom: 2rem;
   text-align: center;
 }
 
@@ -361,7 +360,7 @@ const resetForm = () => {
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .full-width {
@@ -385,7 +384,6 @@ const resetForm = () => {
 .form-actions {
   display: flex;
   justify-content: space-between;
-  margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid var(--color-border);
 }
