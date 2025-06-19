@@ -22,7 +22,6 @@ export interface Filters {
 export const useEventStore = defineStore('event', () => {
   // State
   const events = ref<EventType[]>([]);
-  const favouriteEvents = ref<EventType[]>([]);
   const organizedEvents = ref<EventType[]>([]);
   const administratedEvents = ref<EventType[]>([]);
   const registeredEvents = ref<EventType[]>([]);
@@ -57,7 +56,13 @@ export const useEventStore = defineStore('event', () => {
 
     // Фильтрация по категориям
     if (filters.value.categories.length > 0) {
-      result = result.filter((event) => filters.value.categories.includes(event.category));
+      result = result.filter((event) => {
+        const categories = event.categories.map((item) => item.toLowerCase());
+
+        return filters.value.categories.some((item) => {
+          return categories.includes(item.toLowerCase());
+        });
+      });
     }
 
     // Фильтрация по дате
@@ -238,28 +243,6 @@ export const useEventStore = defineStore('event', () => {
     }
   };
 
-  const toggleFavourite = async (id: string) => {
-    loading.value = true;
-
-    try {
-      const currentEvent = events.value.find((event) => event.id === id);
-      await axiosInstance.put(`events/${id}/favourite`);
-
-      // Оптимистичное обновление
-      const eventIndex = favouriteEvents.value.findIndex((event) => event.id === id);
-      if (eventIndex !== -1) {
-        favouriteEvents.value.push(currentEvent);
-      } else {
-        favouriteEvents.value = favouriteEvents.value.filter((event) => event.id !== id);
-      }
-    } catch (err) {
-      handleError(err, 'Ошибка при изменении статуса "избранное"');
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
   const getEventAdmins = async (id: string) => {
     loading.value = true;
 
@@ -275,10 +258,14 @@ export const useEventStore = defineStore('event', () => {
     }
   };
 
+  const getEventById = (id: string): EventType =>
+    events.value.find((element) => element.id === id) as EventType;
+
+  const getIsUserRegistered = (id: string): boolean =>
+    !!registeredEvents.value.find((item) => item.id === id);
+
   const updateEvent = async (id: string, formData: FormData) => {
     loading.value = true;
-    console.log(formData);
-
     try {
       await fetch(`http://localhost:2000/events/${id}`, {
         method: 'PUT',
@@ -287,6 +274,18 @@ export const useEventStore = defineStore('event', () => {
         },
         body: formData
       });
+    } catch (err) {
+      handleError(err, 'Ошибка при изменении события');
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const deleteEvent = async (id: string) => {
+    loading.value = true;
+    try {
+      await axiosInstance.delete(`events/${id}`);
     } catch (err) {
       handleError(err, 'Ошибка при изменении события');
       throw err;
@@ -316,7 +315,6 @@ export const useEventStore = defineStore('event', () => {
     error,
 
     // Getters
-    favouriteEvents,
     filteredEvents,
     sortedEvents,
     fetchEventParticipants,
@@ -327,12 +325,14 @@ export const useEventStore = defineStore('event', () => {
     fetchOrganizedEvents,
     fetchAdministratedEvents,
     fetchRegisteredEvents,
-    toggleFavourite,
     register,
     unregister,
     setFilters,
     updateEvent,
     getEventAdmins,
-    setSortBy
+    setSortBy,
+    deleteEvent,
+    getEventById,
+    getIsUserRegistered
   };
 });

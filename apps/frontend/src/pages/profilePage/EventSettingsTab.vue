@@ -100,7 +100,7 @@ const isEventPast = (event: any) => new Date(event.dateTime) < new Date();
     </div>
 
     <!-- Пагинация -->
-    <div class="pagination">
+    <div class="pagination" v-if="totalPages > 1">
       <button :disabled="currentPage === 1" @click="currentPage--">Назад</button>
       <span>Страница {{ currentPage }} из {{ totalPages }}</span>
       <button :disabled="currentPage === totalPages" @click="currentPage++">Вперёд</button>

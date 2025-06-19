@@ -116,7 +116,7 @@ const markAsRead = async (notificationId: number) => {
 <style scoped>
 .notifications-page {
   max-width: 800px;
-  min-height: calc(100vh - 420px);
+  min-height: calc(100vh - 380px);
   margin: 0 auto;
   padding: 2rem 1rem;
 }
@@ -140,9 +140,7 @@ const markAsRead = async (notificationId: number) => {
   padding: 1.5rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   border-left: 4px solid;
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .notification-item:hover {

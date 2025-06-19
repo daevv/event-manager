@@ -3,38 +3,44 @@
   <header class="header">
     <div class="header-container">
       <!-- Название сайта с переходом на главную -->
-      <router-link :to="{ name: RouteNames.HOME }" class="site-title"> DaevPulse </router-link>
+      <div class="left">
+        <router-link :to="{ name: RouteNames.HOME }" class="site-title"> DaevPulse </router-link>
 
-      <!-- Навигация -->
-      <nav class="nav">
-        <router-link :to="{ name: RouteNames.HOME }" class="nav-link">Главная</router-link>
-        <router-link v-if="isAuthenticated" :to="{ name: RouteNames.MY_EVENTS }" class="nav-link"
-          >Календарь событий</router-link
-        >
-        <router-link v-if="isAuthenticated" :to="{ name: RouteNames.FAVOURITES }" class="nav-link"
-          >Избранное</router-link
-        >
-        <router-link v-if="isAuthenticated" :to="{ name: RouteNames.PROFILE }" class="nav-link"
-          >Профиль</router-link
-        >
-      </nav>
+        <!-- Навигация -->
+        <nav class="nav">
+          <router-link :to="{ name: RouteNames.HOME }" class="nav-link">Главная</router-link>
+          <router-link v-if="isAuthenticated" :to="{ name: RouteNames.MY_EVENTS }" class="nav-link"
+            >Календарь событий</router-link
+          >
+          <router-link v-if="isAuthenticated" :to="{ name: RouteNames.FAVOURITES }" class="nav-link"
+            >Избранное</router-link
+          >
+        </nav>
+      </div>
 
-      <router-link
-        v-if="isAuthenticated"
-        :to="{ name: RouteNames.EVENT_CREATE }"
-        class="create-event-button"
-      >
-        Создать событие
-      </router-link>
-      <router-link :to="{ name: RouteNames.AUTH }" class="nav-link"
-        ><img alt="profile img" class="profile-link" src="../assets/images/user-profile.svg"
-      /></router-link>
-      <router-link v-if="isAuthenticated" :to="{ name: RouteNames.NOTIFICATIONS }" class="nav-link"
-        ><img
-          alt="profile img"
-          class="notifications-link"
-          src="../assets/images/notification_icon.svg"
-      /></router-link>
+      <div class="right">
+        <router-link
+          v-if="isAuthenticated"
+          :to="{ name: RouteNames.EVENT_CREATE }"
+          class="create-event-button"
+        >
+          Создать событие
+        </router-link>
+        <router-link
+          :to="{ name: isAuthenticated ? RouteNames.PROFILE : RouteNames.AUTH }"
+          class="icon-link"
+          ><img alt="profile img" class="profile-link" src="../assets/images/user-profile.svg"
+        /></router-link>
+        <router-link
+          v-if="isAuthenticated"
+          :to="{ name: RouteNames.NOTIFICATIONS }"
+          class="icon-link"
+          ><img
+            alt="profile img"
+            class="notifications-link"
+            src="../assets/images/notification_icon.svg"
+        /></router-link>
+      </div>
     </div>
   </header>
 </template>
@@ -74,6 +80,15 @@ const isAuthenticated = computed<boolean>(() => userStore.isAuthenticated);
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  justify-content: space-between;
+}
+
+.left,
+.right {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .site-title {
@@ -95,12 +110,37 @@ const isAuthenticated = computed<boolean>(() => userStore.isAuthenticated);
   gap: 30px;
 }
 
+.icon-link {
+  height: 32px;
+  width: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon-link::before {
+  opacity: 0;
+  content: '';
+  position: absolute;
+  background-color: #ffeb3b5a;
+  border-radius: 16px;
+  height: 40px;
+  width: 40px;
+  z-index: -2;
+  transition: opacity 0.3s ease-in;
+}
+
+.icon-link.router-link-active:before,
+.icon-link:hover::before {
+  opacity: 1;
+}
 .nav-link {
   font-size: 18px;
   font-weight: 500;
   color: #fff;
+  padding: 6px 10px;
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
   .profile-link,
   .notifications-link {
     height: 40px;
@@ -121,9 +161,7 @@ const isAuthenticated = computed<boolean>(() => userStore.isAuthenticated);
   font-weight: 600;
   text-decoration: none;
   border-radius: 6px;
-  transition:
-    background 0.3s ease,
-    transform 0.2s ease;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .create-event-button:hover {
@@ -136,9 +174,8 @@ const isAuthenticated = computed<boolean>(() => userStore.isAuthenticated);
 }
 
 .nav-link.router-link-active {
-  color: #ffeb3b;
-  border-bottom: 2px solid #ffeb3b;
-  padding-bottom: 2px;
+  background-color: #ffeb3b5a;
+  border-radius: 16px;
 }
 
 @media (max-width: 767px) {

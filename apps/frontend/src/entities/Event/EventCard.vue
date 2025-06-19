@@ -75,8 +75,8 @@ function getImgSrc(): string {
 }
 
 function getPlaceName(): string {
-  if (!props.event.location) return 'Online or TBD';
-  const { title } = PLACES_DICT[props.event.location.lat] || { title: 'Unknown Place' };
+  if (!props.event.location) return props.event.meetingUrl ?? 'Неизвестно';
+  const { title } = PLACES_DICT[props.event.location.lat] || { title: 'Неизвестно' };
   return title;
 }
 

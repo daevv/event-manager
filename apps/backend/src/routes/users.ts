@@ -8,6 +8,7 @@ router.get('/user/:id', userController.getUserData);
 
 router.put('/:id', authenticate, userController.updateUserData);
 router.get('/administeredEvents', authenticate, userController.getAdministeredEvents);
+router.get('/organizer/:id', authenticate, userController.getOrganizer);
 router.get('/registeredEvents', authenticate, userController.getRegisteredEvents);
 router.get('/organizedEvents/:id', userController.getOrganizedEvents);
 

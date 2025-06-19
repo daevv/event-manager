@@ -169,11 +169,6 @@ const view = ref<'month' | 'week'>('month');
 // Получаем мероприятия пользователя
 const registeredEvents = computed(() => eventStore.registeredEvents);
 
-// Загружаем мероприятия при монтировании
-onMounted(async () => {
-  await eventStore.fetchRegisteredEvents();
-});
-
 // Форматирование времени
 const formatTime = (dateTime: Date | string) => {
   const date = new Date(dateTime);
@@ -222,7 +217,7 @@ const nextPeriod = () => {
 // Заголовок периода
 const periodTitle = computed(() => {
   if (view.value === 'month') {
-    return currentDate.value.toLocaleDateString('default', {
+    return currentDate.value.toLocaleDateString('ru', {
       month: 'long',
       year: 'numeric'
     });
@@ -233,10 +228,10 @@ const periodTitle = computed(() => {
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(endOfWeek.getDate() + 6);
 
-    return `${startOfWeek.getDate()} ${startOfWeek.toLocaleDateString('default', {
+    return `${startOfWeek.getDate()} ${startOfWeek.toLocaleDateString('ru', {
       month: 'short'
     })} -
-                ${endOfWeek.getDate()} ${endOfWeek.toLocaleDateString('default', {
+                ${endOfWeek.getDate()} ${endOfWeek.toLocaleDateString('ru', {
       month: 'short'
     })}`;
   }

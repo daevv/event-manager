@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import axiosInstance from '@/shared/utilities/axiosInstance';
 import { disconnectSocket, initializeSocket } from '@/shared/services/socket';
+import type { EventType } from '../models/eventsModel';
 
 // Интерфейс для структуры данных пользователя
 export interface User {
@@ -14,6 +15,13 @@ export interface User {
   isAdmin?: boolean; // Флаг, указывающий, является ли пользователь администратором
 }
 
+export interface Organizer {
+  id: number;
+  email: string;
+  firstName: string;
+  secondName: string;
+}
+
 // Определение Pinia store для управления состоянием пользователя
 export const useUserStore = defineStore('userStore', () => {
   // --- Состояние ---
@@ -21,6 +29,8 @@ export const useUserStore = defineStore('userStore', () => {
   const user = ref<User | null>(null);
   // Токен аутентификации, хранится в localStorage и синхронизируется с состоянием
   const token = ref<string | null>(localStorage.getItem('token') || null);
+
+  const favouriteEvents = ref<string[]>([]);
 
   // --- Геттеры ---
   // Проверяет, авторизован ли пользователь (true, если токен существует)
@@ -53,6 +63,7 @@ export const useUserStore = defineStore('userStore', () => {
     token.value = null; // Сбрасываем токен
     localStorage.removeItem('token'); // Удаляем токен из localStorage
     localStorage.removeItem('userId'); // Удаляем ID пользователя
+    localStorage.removeItem('authToken'); // Удаляем ID пользователя
 
     // Отключаем Socket.IO соединение
     disconnectSocket();
@@ -64,6 +75,7 @@ export const useUserStore = defineStore('userStore', () => {
    */
   async function initUser(userData: User) {
     user.value = userData; // Устанавливаем данные пользователя
+    favouriteEvents.value = userData.favourites;
     localStorage.setItem('userId', String(userData.id)); // Сохраняем ID
   }
 
@@ -86,6 +98,16 @@ export const useUserStore = defineStore('userStore', () => {
     } catch (error: any) {
       // Бросаем ошибку с сообщением от сервера или дефолтным текстом
       throw new Error(error.response?.data?.message || 'Ошибка при поиске пользователя');
+    }
+  }
+
+  async function getOrganizer(id: number) {
+    try {
+      const response = await axiosInstance.get<Organizer>(`/users/organizer/${id}`); // Запрос данных пользователя
+      return response.data; // Возвращаем данные
+    } catch (error: any) {
+      // Бросаем ошибку с сообщением от сервера или дефолтным текстом
+      throw new Error(error.response?.data?.message || 'Ошибка при поиске организатора');
     }
   }
 
@@ -156,6 +178,26 @@ export const useUserStore = defineStore('userStore', () => {
     }
   }
 
+  function getIsFavourite(eventId: string): boolean {
+    return !!favouriteEvents.value.includes(eventId);
+  }
+
+  async function toggleFavourite(id: string): Promise<void> {
+    try {
+      await axiosInstance.put(`events/${id}/favourite`);
+
+      // Оптимистичное обновление
+      const eventIndex = favouriteEvents.value.indexOf(id);
+      if (eventIndex === -1) {
+        favouriteEvents.value.push(id);
+      } else {
+        favouriteEvents.value = favouriteEvents.value.filter((itemId) => itemId !== id);
+      }
+    } catch (err) {
+      console.error(err, 'Ошибка при изменении статуса "избранное"');
+    }
+  }
+
   // Возвращаем публичные свойства и методы store
   return {
     user,
@@ -169,6 +211,10 @@ export const useUserStore = defineStore('userStore', () => {
     updateUser,
     updatePassword,
     login,
-    logout
+    logout,
+    getOrganizer,
+    getIsFavourite,
+    toggleFavourite,
+    favouriteEvents
   };
 });

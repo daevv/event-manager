@@ -64,5 +64,5 @@ export const useGroupStore = defineStore('groupStore', () => {
 export interface Group {
   id: number; // Уникальный идентификатор группы
   name: string; // Название группы
-  members?: { id: number; email: string }[]; // Список участников (опционально, зависит от API)
+  members?: { id: number; email: string; firstName: string; secondName: string }[]; // Список участников (опционально, зависит от API)
 }

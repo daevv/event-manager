@@ -25,6 +25,26 @@ export const getUserData = async (req: Request, res: Response) => {
   }
 };
 
+// Получение данных пользователя
+export const getOrganizer = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findByPk(userId, {
+      attributes: { include: ['id', 'email', 'firstName', 'secondName'] }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Пользователь не найден' });
+    }
+
+    return res.json(user);
+  } catch (error) {
+    logger.error('Error fetching user data', { userId: req.params.id, error });
+    return res.status(500).json({ message: 'Ошибка сервера при получении данных организатора' });
+  }
+};
+
 // Обновление данных пользователя
 export const updateUserData = async (req: Request, res: Response) => {
   try {

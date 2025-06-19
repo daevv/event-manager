@@ -4,8 +4,8 @@
 
     <!-- Список групп -->
     <div class="groups-container">
-      <details v-for="group in groupStore.groups" :key="group.id" class="group-card">
-        <summary class="group-header">
+      <div v-for="group in groupStore.groups" :key="group.id" class="group-card">
+        <div class="group-header">
           <input
             v-model="group.name"
             class="group-name-input"
@@ -21,7 +21,7 @@
               <span class="icon">🗑️</span> Удалить
             </button>
           </div>
-        </summary>
+        </div>
         <div class="group-content">
           <table class="group-table">
             <thead>
@@ -35,7 +35,7 @@
             <tbody>
               <tr v-for="member in group.members" :key="member.id" class="table-row">
                 <td>{{ member.firstName }}</td>
-                <td>{{ member.lastName }}</td>
+                <td>{{ member.secondName }}</td>
                 <td>{{ member.email }}</td>
                 <td>
                   <button class="remove-button" @click="removeMember(group.id, member.id)">
@@ -46,7 +46,7 @@
             </tbody>
           </table>
         </div>
-      </details>
+      </div>
     </div>
 
     <!-- Кнопка создания новой группы -->
@@ -72,7 +72,7 @@
         <tbody>
           <tr v-for="user in blacklistStore.blacklist" :key="user.id" class="table-row">
             <td>{{ user.firstName }}</td>
-            <td>{{ user.lastName }}</td>
+            <td>{{ user.secondName }}</td>
             <td>{{ user.email }}</td>
             <td>
               <button class="remove-button" @click="removeFromBlacklist(user.id)">
@@ -200,9 +200,7 @@ const removeFromBlacklist = async (id: number) => {
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .group-card:hover {
@@ -264,9 +262,7 @@ const removeFromBlacklist = async (id: number) => {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition:
-    background 0.3s ease,
-    transform 0.2s ease;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .action-button:hover {
@@ -333,9 +329,7 @@ const removeFromBlacklist = async (id: number) => {
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition:
-    background 0.3s ease,
-    transform 0.2s ease;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .remove-button:hover {
@@ -356,9 +350,7 @@ const removeFromBlacklist = async (id: number) => {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition:
-    background 0.3s ease,
-    transform 0.2s ease;
+  transition: background 0.3s ease, transform 0.2s ease;
   align-self: flex-start;
 }
 
@@ -368,7 +360,8 @@ const removeFromBlacklist = async (id: number) => {
   transform: scale(1.05);
 }
 
-.blacklist-container {
+.blacklist-container,
+.group-content {
   background: #ffffff;
   border-radius: 12px;
   padding: 1.5rem;

@@ -64,6 +64,7 @@ const setSortBy = (value: 'relevance' | 'date' | 'price') => {
 onMounted(() => {
   eventStore.fetchEvents();
   userStore.fetchUser();
+  eventStore.fetchRegisteredEvents();
 });
 </script>
 

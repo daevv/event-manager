@@ -3,15 +3,10 @@
   <main class="profile-page">
     <div class="title-container">
       <h1 class="page-title">Профиль пользователя</h1>
-      <router-link
-        v-if="true"
-        :to="{ name: RouteNames.ADMIN }"
-        class="admin-button"
-      >
+      <router-link v-if="true" :to="{ name: RouteNames.ADMIN }" class="admin-button">
         Админ панель
       </router-link>
     </div>
-    
 
     <!-- Вкладки -->
     <div class="tabs">
@@ -56,8 +51,7 @@ const tabs: ProfileTabInterface[] = [
 const activeTab = ref<Tabs>('general');
 const userStore = useUserStore();
 
-const isAdmin = computed<boolean>(() => userStore.isAdmin)
-
+const isAdmin = computed<boolean>(() => userStore.isAdmin);
 </script>
 
 <style scoped>
@@ -65,7 +59,7 @@ const isAdmin = computed<boolean>(() => userStore.isAdmin)
   max-width: 1280px;
   margin: 2.5rem auto;
   padding: 2rem;
-  background: linear-gradient(90deg, #7d998b 0%, rgba(52, 77, 81, 0.33) 100%);
+  background: linear-gradient(90deg, #4a4a4a 0%, #2d2d2d 100%);
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
@@ -81,7 +75,7 @@ const isAdmin = computed<boolean>(() => userStore.isAdmin)
 .page-title {
   font-size: 2.25rem;
   font-weight: 700;
-  color: #1e293b;
+  color: white;
   text-align: left;
   letter-spacing: -0.025em;
 }
@@ -95,9 +89,7 @@ const isAdmin = computed<boolean>(() => userStore.isAdmin)
   font-weight: 600;
   text-decoration: none;
   border-radius: 6px;
-  transition:
-    background 0.3s ease,
-    transform 0.2s ease;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .admin-button:hover {
@@ -121,7 +113,7 @@ const isAdmin = computed<boolean>(() => userStore.isAdmin)
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: 500;
-  color: #64748b;
+  color: white;
   background: transparent;
   border: none;
   border-radius: 8px;
@@ -131,23 +123,13 @@ const isAdmin = computed<boolean>(() => userStore.isAdmin)
 }
 
 .tab-button:hover {
-  color: #3b82f6;
-  background: #f1f5f9;
+  color: #3d4146;
+  background: #cdd0d2;
 }
 
 .tab-button.active {
-  color: #3b82f6;
-  background: #eff6ff;
-}
-
-.tab-button.active::after {
-  content: '';
-  position: absolute;
-  bottom: -0.5rem;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #3b82f6;
+  color: #3d4146;
+  background: #cdd0d2;
 }
 
 .tab-content {

@@ -16,12 +16,13 @@ export interface EventType {
   isFavourite: boolean;
   groupId: string | null;
   price: number | null;
-  categories: CATEGORY_MODEL[];
+  categories: string[];
   image: string;
   participantsCount: number;
   maxParticipantsCount: number | null;
   organizerId: number;
   imageUrl: string | null;
+  meetingUrl: string | null;
   eventStatus: STATUSES_MODEL;
   createdAt?: Date; // Опционально
   updatedAt?: Date; // Опционально

@@ -9,7 +9,6 @@
 
       <div v-else-if="error" class="error-message">
         <p>{{ error }}</p>
-        <button class="retry-button" @click="fetchFavorites">Попробовать снова</button>
       </div>
 
       <div v-else-if="favoriteEvents.length === 0" class="empty-state">
@@ -26,12 +25,12 @@
       </div>
 
       <div v-else class="events-grid">
-        <EventCard
+        <FavouritesEvent
           v-for="event in favoriteEvents"
           :key="event.id"
           :event="event"
           class="event-card"
-          @toggle-favorite="toggleFavorite(event.id)"
+          @remove="toggleFavorite(event.id)"
         />
       </div>
     </div>
@@ -39,40 +38,46 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useEventStore } from '@/shared/stores/eventStore';
-import EventCard from '@/entities/Event/EventCard.vue';
 import { RouteNames } from '@/shared/router';
+import { useUserStore } from '@/shared/stores/userStore';
+import type { EventType } from '@/shared/models/eventsModel';
+import FavouritesEvent from '@/entities/Event/FavouritesEvent.vue';
 
 const eventStore = useEventStore();
+const userStore = useUserStore();
 
 const loading = ref(false);
 const error = ref<string | null>(null);
 
-const favoriteEvents = computed(() => eventStore.favouriteEvents);
+const favoriteEventsIds = computed(() => userStore.favouriteEvents);
+const favoriteEvents = computed<EventType[]>(() => {
+  return favoriteEventsIds.value.map(eventStore.getEventById);
+});
 
 const toggleFavorite = async (eventId: string) => {
   try {
-    await eventStore.toggleFavourite(eventId);
+    await userStore.toggleFavourite(eventId);
   } catch (e) {
     console.error('Ошибка при изменении избранного:', e);
   }
 };
-
-onMounted(() => {
-  console.log(favoriteEvents);
-});
 </script>
 
 <style scoped>
 .favorites-page {
-  padding: 2rem 0;
+  max-width: 800px;
+  min-height: calc(100vh - 380px);
+  padding: 2rem 1rem;
+  margin: 0 auto;
 }
 
 .page-title {
   font-size: 2rem;
+  color: #2c3e50;
   margin-bottom: 2rem;
-  color: var(--color-primary-light);
+  text-align: center;
 }
 
 .events-grid {

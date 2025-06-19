@@ -27,7 +27,7 @@
           Пока нет организованных мероприятий
         </div>
         <div v-else class="events-grid">
-          <EventCard
+          <OrganizerEventCard
             v-for="event in organizedEvents"
             :key="event.id"
             :event="event"
@@ -44,7 +44,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@/shared/stores/userStore';
 import { useEventStore } from '@/shared/stores/eventStore';
-import EventCard from '@/entities/Event/EventCard.vue';
+import OrganizerEventCard from '@/entities/Event/OrganizerEventCard.vue';
 
 const route = useRoute();
 const userStore = useUserStore();

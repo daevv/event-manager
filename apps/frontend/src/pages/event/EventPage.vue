@@ -24,29 +24,18 @@
           <div class="event-price">
             <span>{{ formatPrice(event.price) }}</span>
           </div>
-          <div class="event-actions">
-            <button class="buy-ticket-button" @click="handleRegistration">
-              {{ registerButtonText }}
-            </button>
-            <button v-if="canUpdate" class="buy-ticket-button" @click="handleUpdate">
-              {{ 'Редактировать' }}
-            </button>
-            <button class="action-button" @click="handleFavourite">
-              <span class="heart-icon">❤️</span>
-            </button>
-          </div>
         </div>
       </div>
     </section>
 
-    <section v-if="event" class="event-details">
+    <section class="event-details">
       <div class="event-info">
         <div class="event-tags">
-          <span v-for="category in event.categories" class="tag">{{ category }}</span>
-          <span class="tag">{{ event.isLocal ? 'Локальное' : 'Онлайн' }}</span>
+          <span v-for="category in event?.categories" class="tag">{{ category }}</span>
+          <span class="tag">{{ event?.isLocal ? 'Локальное' : 'Онлайн' }}</span>
         </div>
         <h2 class="section-title">Про событие</h2>
-        <p class="event-description">{{ event.description }}</p>
+        <p class="event-description">{{ event?.description }}</p>
       </div>
       <div class="event-contacts">
         <h2 class="section-title">Организатор</h2>
@@ -60,10 +49,29 @@
       </div>
     </section>
 
-    <section v-if="event" class="event-comments">
+    <section>
+      <div class="event-actions">
+        <button class="buy-ticket-button" @click="handleRegistration">
+          {{ registerButtonText }}
+        </button>
+        <button class="buy-ticket-button" @click="handleFavourite">
+          {{ isFavourite ? 'Удалить из избранного' : 'Добавить в избранное' }}
+        </button>
+      </div>
+      <div class="admin-actions" v-if="canUpdate">
+        <button class="buy-ticket-button" @click="handleUpdate">
+          {{ 'Редактировать' }}
+        </button>
+        <button class="buy-ticket-button" @click="handleDelete">
+          {{ 'Удалить мероприятие' }}
+        </button>
+      </div>
+    </section>
+
+    <section v-if="event?.eventStatus === STATUSES_MODEL.COMPLETED" class="event-comments">
       <CommentList :event-id="eventId" />
     </section>
-    <section v-if="event" class="event-participants">
+    <section v-if="event && canSeeParticipants" class="event-participants">
       <ParticipantsList :event-id="eventId" />
     </section>
 
@@ -74,6 +82,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { STATUSES_MODEL } from '@/shared/models/statusesModel';
+import { useToast } from 'vue-toastification';
 
 export default defineComponent({
   name: 'EventPage'
@@ -86,7 +96,7 @@ import { useRoute } from 'vue-router';
 import { useEventStore } from '@/shared/stores/eventStore';
 import { API_BASE_URL } from '@/config';
 import { toId } from '@/shared/utilities';
-import { type User, useUserStore } from '@/shared/stores/userStore';
+import { type Organizer, useUserStore } from '@/shared/stores/userStore';
 import router, { RouteNames } from '@/shared/router';
 import CommentList from '@/features/CommentList.vue';
 import ParticipantsList from '@/features/ParticipantsList.vue';
@@ -95,13 +105,12 @@ import ParticipantsList from '@/features/ParticipantsList.vue';
 const eventStore = useEventStore();
 const userStore = useUserStore();
 const route = useRoute();
+const toast = useToast();
 
 // Получаем ID события из параметров маршрута
 const eventId = computed(() => route.params.id as string);
-const isUserRegistered = computed<boolean>(() => {
-  const userRegisteredEvents = eventStore.registeredEvents.map(toId);
-  return userRegisteredEvents.includes(eventId.value);
-});
+const isUserRegistered = ref<boolean>(false);
+const isFavourite = ref<boolean>(false);
 
 const registerButtonText = computed<string>(() => {
   return isUserRegistered.value ? 'Отменить запись' : 'Записаться на событие';
@@ -116,13 +125,16 @@ const event = computed(() => {
   return foundEvent || null;
 });
 
-const organizer = ref<User | null>(null);
+const organizer = ref<Organizer | null>(null);
 const organizerData = computed(() => ({
   name: organizer.value?.firstName + ' ' + organizer.value?.secondName,
   email: organizer.value?.email ?? 'testMail@mail.ru'
 }));
 
 const canUpdate = computed<boolean>(() => userStore.user?.id === event.value?.organizerId);
+const canSeeParticipants = computed<boolean>(
+  () => canUpdate.value || eventStore.administratedEvents.map(toId).includes(eventId.value)
+);
 
 // Получаем URL изображения
 const imgSrc = computed(() =>
@@ -144,8 +156,8 @@ function formatPrice(price: number | null): string {
 }
 
 function getPlaceName(): string {
-  if (!event.value?.location) return 'Online or TBD';
-  return event.value?.location.address || 'Unknown Place';
+  if (!event.value?.location) return event.value?.meetingUrl || 'Неизвестно';
+  return event.value?.location.address || 'Неизвестно';
 }
 
 function onImageError(event: Event) {
@@ -164,14 +176,30 @@ async function handleRegistration(): Promise<void> {
   isUserRegistered.value
     ? await eventStore.unregister(eventId.value, userStore.user?.email ?? '')
     : await eventStore.register(eventId.value, userStore.user?.email ?? '');
+  isUserRegistered.value = !isUserRegistered.value;
+  const successText = isUserRegistered.value
+    ? 'Вы успешно зарегистрировались на мероприятие'
+    : 'Регистрация успешно отменена';
+  toast.success(successText);
 }
 
 async function handleUpdate(): Promise<void> {
   await router.push({ name: RouteNames.EVENT_EDIT, params: { id: eventId.value } });
 }
 
+async function handleDelete(): Promise<void> {
+  await eventStore.deleteEvent(eventId.value);
+  await router.push({ name: RouteNames.HOME });
+  toast.success('Мероприятие удалено');
+}
+
 async function handleFavourite(): Promise<void> {
-  eventStore.toggleFavourite(eventId.value);
+  await userStore.toggleFavourite(eventId.value);
+  isFavourite.value = !isFavourite.value;
+  const successText = isFavourite.value
+    ? 'Успешно добавлено в избранное'
+    : 'Успешно удалено из избранного';
+  toast.success(successText);
 }
 
 async function handleOrganizerClick() {
@@ -180,7 +208,12 @@ async function handleOrganizerClick() {
 
 onMounted(async () => {
   await fetchEvent();
-  organizer.value = await userStore.fetchUser(event.value?.organizerId);
+  isFavourite.value = userStore.getIsFavourite(eventId.value);
+  isUserRegistered.value = eventStore.getIsUserRegistered(eventId.value);
+  const organizerId = event.value?.organizerId ?? null;
+  if (organizerId) {
+    organizer.value = await userStore.getOrganizer(organizerId);
+  }
 });
 </script>
 
@@ -269,9 +302,13 @@ onMounted(async () => {
   background: #e65a50;
 }
 
-.event-actions {
+.event-actions,
+.admin-actions {
   display: flex;
   gap: 12px;
+  margin-bottom: 12px;
+  align-items: center;
+  justify-content: center;
 }
 
 .action-button {
