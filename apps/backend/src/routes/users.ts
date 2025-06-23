@@ -11,5 +11,6 @@ router.get('/administeredEvents', authenticate, userController.getAdministeredEv
 router.get('/organizer/:id', authenticate, userController.getOrganizer);
 router.get('/registeredEvents', authenticate, userController.getRegisteredEvents);
 router.get('/organizedEvents/:id', userController.getOrganizedEvents);
+router.delete('/deleteAccount/:id', userController.deleteAccount);
 
 export default router;

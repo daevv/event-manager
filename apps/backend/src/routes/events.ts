@@ -14,6 +14,7 @@ router.post('/:id/admins', authenticate, eventController.addAdmin);
 router.delete('/:id/admins/', authenticate, eventController.removeAdmin);
 router.post('/:id/register', authenticate, eventController.registerForEvent);
 router.post('/:id/unregister', authenticate, eventController.cancelRegistration);
+router.post('/:id/complete', authenticate, eventController.completeEvent);
 router.get('/:id/participants', authenticate, eventController.getParticipants);
 router.get('/:id/admins', authenticate, eventController.getAdmins);
 

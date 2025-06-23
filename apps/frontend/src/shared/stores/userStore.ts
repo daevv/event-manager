@@ -101,7 +101,7 @@ export const useUserStore = defineStore('userStore', () => {
     }
   }
 
-  async function getOrganizer(id: number) {
+  async function getOrganizer(id: number | string) {
     try {
       const response = await axiosInstance.get<Organizer>(`/users/organizer/${id}`); // Запрос данных пользователя
       return response.data; // Возвращаем данные
@@ -178,6 +178,15 @@ export const useUserStore = defineStore('userStore', () => {
     }
   }
 
+  async function deleteAccount(): Promise<void> {
+    try {
+      await await axiosInstance.delete(`users/deleteAccount/${user.value?.id}`);
+      await logout();
+    } catch (error) {
+      console.error('Ошибка при выходе:', error);
+    }
+  }
+
   function getIsFavourite(eventId: string): boolean {
     return !!favouriteEvents.value.includes(eventId);
   }
@@ -212,6 +221,7 @@ export const useUserStore = defineStore('userStore', () => {
     updatePassword,
     login,
     logout,
+    deleteAccount,
     getOrganizer,
     getIsFavourite,
     toggleFavourite,

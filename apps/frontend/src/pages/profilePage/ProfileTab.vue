@@ -55,6 +55,7 @@
         Изменить пароль
       </button>
       <button class="button" type="button" @click="logout">Выйти</button>
+      <button class="button" type="button" @click="deleteAccount">Удалить аккаунт</button>
     </form>
 
     <!-- Модалка интересов -->
@@ -188,6 +189,12 @@ const changePassword = () => {
 const logout = async () => {
   await userStore.logout();
   router.push({ name: RouteNames.HOME });
+};
+
+const deleteAccount = async () => {
+  await userStore.deleteAccount();
+  router.push({ name: RouteNames.HOME });
+  toast.success('Аккаунт успешно удалён');
 };
 </script>
 

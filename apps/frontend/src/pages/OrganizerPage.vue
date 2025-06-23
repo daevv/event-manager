@@ -71,7 +71,7 @@ const fetchData = async () => {
     if (!userId) return;
 
     // Загружаем данные пользователя
-    user.value = await userStore.fetchUser(userId);
+    user.value = await userStore.getOrganizer(userId as string);
 
     organizedEvents.value = await eventStore.fetchOrganizedEvents(userId + '');
   } catch (err) {

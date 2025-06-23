@@ -37,7 +37,7 @@
             <div class="comment-rating">
               <span v-for="i in 5" :key="i" :class="{ filled: i <= comment.rating }">★</span>
             </div>
-            <span class="comment-date">{{ formatDate(comment.created_at) }}</span>
+            <span class="comment-date">{{ formatDate(comment.createdAt) }}</span>
           </div>
           <div class="comment-text">{{ comment.text }}</div>
         </div>

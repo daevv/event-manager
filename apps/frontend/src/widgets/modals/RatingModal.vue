@@ -164,6 +164,7 @@ h2 {
   margin-bottom: 1.5rem;
   resize: vertical;
   font-family: inherit;
+  font-size: 14px;
   transition: border-color 0.2s;
 }
 

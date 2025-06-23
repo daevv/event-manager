@@ -4,6 +4,7 @@ import EventAdmin from '@/models/eventAdmin';
 import EventRegistration from '@/models/eventRegistration';
 import User from '@/models/user';
 import { logger } from '@/services/logger';
+import { Op } from 'sequelize';
 
 // Получение данных пользователя
 export const getUserData = async (req: Request, res: Response) => {
@@ -81,6 +82,22 @@ export const updateUserData = async (req: Request, res: Response) => {
   }
 };
 
+// удаление аккаунта
+export const deleteAccount = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+
+    if (!req.user || req.user.id !== userId) {
+      return res.status(403).json({ message: 'Доступ запрещен' });
+    }
+    // удаление аккаунта
+    return res.json({ success: true });
+  } catch (error: any) {
+    logger.error('Error updating user data', { userId: req.params.id, error: error.message });
+    return res.status(500).json({ message: 'Ошибка сервера при обновлении данных пользователя' });
+  }
+};
+
 // Получение мероприятий, где пользователь — организатор
 export const getOrganizedEvents = async (req: Request, res: Response) => {
   try {
@@ -146,7 +163,12 @@ export const getRegisteredEvents = async (req: Request, res: Response) => {
           required: true
         }
       ],
-      attributes: ['id', 'title', 'description', 'dateTime', 'eventStatus'] // Выбираем только нужные поля
+      attributes: ['id', 'title', 'description', 'dateTime', 'eventStatus'], // Выбираем только нужные поля
+      where: {
+        eventStatus: {
+          [Op.not]: ['BANNED', 'COMPLETED']
+        }
+      }
     });
 
     return res.json(events);

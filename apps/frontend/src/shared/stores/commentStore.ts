@@ -106,7 +106,7 @@ export interface Comment {
   rating: number;
   user_id: number;
   event_id: number;
-  created_at: string;
+  createdAt: string;
   updated_at: string;
   user?: User;
 }

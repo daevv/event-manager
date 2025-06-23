@@ -1,5 +1,9 @@
-import type { CATEGORY_MODEL } from '@/shared/models/categoryModel';
-import type { STATUSES_MODEL } from '@/shared/models/statusesModel';
+export enum STATUSES_MODEL {
+  ONGOING = 'ONGOING',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+  PLANNING = 'PLANNING'
+}
 
 export interface EventType {
   id: string;

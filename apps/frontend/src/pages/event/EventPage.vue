@@ -25,6 +25,13 @@
             <span>{{ formatPrice(event.price) }}</span>
           </div>
         </div>
+        <button
+          v-if="!isCompleted && canUpdate"
+          class="buy-ticket-button meta-button"
+          @click="handleComplete"
+        >
+          {{ 'Отметить как прошедшее' }}
+        </button>
       </div>
     </section>
 
@@ -51,24 +58,24 @@
 
     <section>
       <div class="event-actions">
-        <button class="buy-ticket-button" @click="handleRegistration">
+        <button v-if="!isCompleted" class="buy-ticket-button" @click="handleRegistration">
           {{ registerButtonText }}
         </button>
         <button class="buy-ticket-button" @click="handleFavourite">
           {{ isFavourite ? 'Удалить из избранного' : 'Добавить в избранное' }}
         </button>
       </div>
-      <div class="admin-actions" v-if="canUpdate">
+      <div v-if="!isCompleted && canUpdate" class="admin-actions">
         <button class="buy-ticket-button" @click="handleUpdate">
           {{ 'Редактировать' }}
         </button>
-        <button class="buy-ticket-button" @click="handleDelete">
+        <button v-if="!isCompleted" class="buy-ticket-button" @click="handleDelete">
           {{ 'Удалить мероприятие' }}
         </button>
       </div>
     </section>
 
-    <section v-if="event?.eventStatus === STATUSES_MODEL.COMPLETED" class="event-comments">
+    <section v-if="isCompleted" class="event-comments">
       <CommentList :event-id="eventId" />
     </section>
     <section v-if="event && canSeeParticipants" class="event-participants">
@@ -82,7 +89,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { STATUSES_MODEL } from '@/shared/models/statusesModel';
+import { STATUSES_MODEL, type EventType } from '@/shared/models/eventsModel';
 import { useToast } from 'vue-toastification';
 
 export default defineComponent({
@@ -111,19 +118,14 @@ const toast = useToast();
 const eventId = computed(() => route.params.id as string);
 const isUserRegistered = ref<boolean>(false);
 const isFavourite = ref<boolean>(false);
+const isCompleted = computed<boolean>(() => event.value?.eventStatus === STATUSES_MODEL.COMPLETED);
 
 const registerButtonText = computed<string>(() => {
   return isUserRegistered.value ? 'Отменить запись' : 'Записаться на событие';
 });
 
 // Получаем событие из стора
-const event = computed(() => {
-  const foundEvent = eventStore.events.find((e) => e.id === eventId.value);
-  if (!foundEvent && !eventStore.loading && !eventStore.error) {
-    fetchEvent(); // Если событие не найдено, загружаем его
-  }
-  return foundEvent || null;
-});
+const event = ref<EventType | null>(null);
 
 const organizer = ref<Organizer | null>(null);
 const organizerData = computed(() => ({
@@ -166,10 +168,8 @@ function onImageError(event: Event) {
 
 // Загрузка данных
 const fetchEvent = async () => {
-  await eventStore.fetchEventById(eventId.value);
-  // if (Object.keys(eventStore.placesDict).length === 0) {
-  //   await eventStore.fetchPlaces();
-  // }
+  const result = await eventStore.fetchEventById(eventId.value);
+  event.value = result;
 };
 
 async function handleRegistration(): Promise<void> {
@@ -185,6 +185,12 @@ async function handleRegistration(): Promise<void> {
 
 async function handleUpdate(): Promise<void> {
   await router.push({ name: RouteNames.EVENT_EDIT, params: { id: eventId.value } });
+}
+
+async function handleComplete(): Promise<void> {
+  await eventStore.completeEvent(eventId.value);
+  toast.success('Мероприятие отмечено как проведённое');
+  await fetchEvent();
 }
 
 async function handleDelete(): Promise<void> {
@@ -257,6 +263,12 @@ onMounted(async () => {
   flex-direction: column;
   gap: 12px;
   max-width: 600px;
+}
+
+.meta-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
 }
 
 .event-category {

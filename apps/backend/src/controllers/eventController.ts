@@ -172,7 +172,7 @@ export const eventController = {
     try {
       const where: any = {
         eventStatus: {
-          [Op.not]: 'BANNED' // Исключаем события со статусом BANNED
+          [Op.not]: ['BANNED', 'COMPLETED']
         }
       };
       if (!req.user?.id) {
@@ -307,6 +307,54 @@ export const eventController = {
                 type: NotificationType.EVENT_DELETE,
                 title: 'Мероприятие отменено',
                 content: `Мероприятие "${eventValues.title}" было отменено`,
+                eventId: eventValues.id,
+                transaction: t
+              })
+            )
+          );
+        }
+      });
+
+      return res.json({ message: 'Мероприятие удалено' });
+    } catch (error) {
+      handleControllerError(res, error, 'Ошибка при удалении события');
+    }
+  },
+
+  completeEvent: async (req: Request, res: Response) => {
+    try {
+      if (!req.user?.id) {
+        return res.status(401).json({ message: 'Требуется авторизация' });
+      }
+
+      const event = await Event.findByPk(req.params.id);
+      if (!event) {
+        return res.status(404).json({ message: 'Мероприятие не найдено' });
+      }
+
+      const eventValues = event.dataValues;
+
+      if (eventValues.organizerId !== req.user.id) {
+        return res.status(403).json({ message: 'Только организатор может завершить мероприятие' });
+      }
+
+      const registrations = await EventRegistration.findAll({
+        where: { eventId: eventValues.id, status: 'registered' },
+        attributes: ['userId']
+      });
+
+      await sequelize.transaction(async (t) => {
+        await event.update({ eventStatus: 'COMPLETED' });
+        await event.save();
+
+        if (registrations.length > 0) {
+          await Promise.all(
+            registrations.map((reg) =>
+              createNotification({
+                userId: reg.dataValues.userId,
+                type: NotificationType.EVENT_COMPLETED,
+                title: 'Мероприятие завершено',
+                content: `Мероприятие "${eventValues.title}" было завершено`,
                 eventId: eventValues.id,
                 transaction: t
               })

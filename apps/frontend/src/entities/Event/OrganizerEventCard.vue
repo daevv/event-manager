@@ -43,7 +43,7 @@ const props = defineProps<OrganizerEventCardProps>();
 function getImgSrc(): string {
   return props.event.imageUrl
     ? `${API_BASE_URL}${props.event.imageUrl}`
-    : 'src/assets/images/event_card_1.jpeg';
+    : '../src/assets/images/event_card_1.jpeg';
 }
 
 function getPlaceName(): string {

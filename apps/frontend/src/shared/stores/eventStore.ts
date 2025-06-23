@@ -182,13 +182,9 @@ export const useEventStore = defineStore('event', () => {
     error.value = null;
 
     try {
-      const existingEvent = events.value.find((e) => e.id === id);
-      if (existingEvent) return existingEvent;
-
       const response = await axiosInstance.get(`events/${id}`);
       const event = normalizeEvent(response.data);
 
-      events.value.push(event);
       return event;
     } catch (err) {
       handleError(err, 'Ошибка при загрузке события');
@@ -223,6 +219,20 @@ export const useEventStore = defineStore('event', () => {
       registeredEvents.value = registeredEvents.value.filter((event) => event.id !== eventId);
     } catch (err) {
       handleError(err, 'Ошибка при отмене регистрации');
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const completeEvent = async (eventId: string) => {
+    loading.value = true;
+
+    try {
+      await axiosInstance.post(`events/${eventId}/complete`);
+      registeredEvents.value = registeredEvents.value.filter((event) => event.id !== eventId);
+    } catch (err) {
+      handleError(err, 'Ошибка при завершении события');
       throw err;
     } finally {
       loading.value = false;
@@ -333,6 +343,7 @@ export const useEventStore = defineStore('event', () => {
     setSortBy,
     deleteEvent,
     getEventById,
-    getIsUserRegistered
+    getIsUserRegistered,
+    completeEvent
   };
 });

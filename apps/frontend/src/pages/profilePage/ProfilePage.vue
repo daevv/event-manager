@@ -3,7 +3,7 @@
   <main class="profile-page">
     <div class="title-container">
       <h1 class="page-title">Профиль пользователя</h1>
-      <router-link v-if="true" :to="{ name: RouteNames.ADMIN }" class="admin-button">
+      <router-link v-if="isAdmin" :to="{ name: RouteNames.ADMIN }" class="admin-button">
         Админ панель
       </router-link>
     </div>
